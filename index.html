@@ -189,7 +189,7 @@
                   autocapitalize="none" 
                   autocomplete="off" 
                   spellcheck="false" 
-                  placeholder="Ketik teks Latin di sini...">resik lemah anak lema suai ruana gawea</textarea>
+                  placeholder="Ketik teks Latin di sini...">resik lemah anak lema suai ruana gawéa</textarea>
 
         <div class="label-header">
             <label>Cara Kawi</label>
@@ -201,7 +201,6 @@
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
-            <!-- Keterangan teknis dihapus sesuai permintaan -->
         </div>
     </div>
 
@@ -325,23 +324,23 @@
                         continue;
                     }
 
-                    // Cek Pa Cerek (re pepet) di awal/tengah suku kata mandiri
+                    // Cek Pa Cerek (re pepet) - Aksara Mandiri
                     if (word.substr(i, 2).toLowerCase() === 're') {
                         let isStartOfWord = (i === 0);
-                        let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
-                        if (isStartOfWord || !prevCharIsCons) {
-                            result += 'ꦽ'; // Pa Cerek
+                        let prevCharIsVowel = (i > 0 && isVowel(word[i - 1]));
+                        if (isStartOfWord || prevCharIsVowel) {
+                            result += 'ꦉ'; // U+A989 Pa Cerek
                             i += 2;
                             continue;
                         }
                     }
 
-                    // Cek Nga Lelet (le pepet) di awal/tengah suku kata mandiri
+                    // Cek Nga Lelet (le pepet) - Aksara Mandiri
                     if (word.substr(i, 2).toLowerCase() === 'le') {
                         let isStartOfWord = (i === 0);
-                        let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
-                        if (isStartOfWord || !prevCharIsCons) {
-                            result += 'ꦷ'; // Nga Lelet
+                        let prevCharIsVowel = (i > 0 && isVowel(word[i - 1]));
+                        if (isStartOfWord || prevCharIsVowel) {
+                            result += 'ꦊ'; // U+A98A Nga Lelet
                             i += 2;
                             continue;
                         }
@@ -356,26 +355,38 @@
                         if (nextIdx < word.length) {
                             let nextCons = matchConsonant(word, nextIdx);
 
+                            // Cakra & Cakra Keret
                             if (nextCons && nextCons.key === 'r') {
                                 let afterRIdx = nextIdx + nextCons.len;
                                 if (afterRIdx < word.length && isVowel(word[afterRIdx])) {
                                     let v = word[afterRIdx];
                                     if (v === 'e') {
-                                        result += cons.char + 'ꦽ';
+                                        result += cons.char + 'ꦽ'; // Cakra Keret
                                     } else {
-                                        result += cons.char + 'ꦿ' + getSandhanganVowel(v);
+                                        result += cons.char + 'ꦿ' + getSandhanganVowel(v); // Cakra
                                     }
                                     i = afterRIdx + 1;
                                     continue;
                                 }
                             }
 
+                            // Pengkal
                             if (nextCons && nextCons.key === 'y') {
                                 let afterYIdx = nextIdx + nextCons.len;
                                 if (afterYIdx < word.length && isVowel(word[afterYIdx])) {
                                     let v = word[afterYIdx];
-                                    result += cons.char + 'ꦾ' + getSandhanganVowel(v);
+                                    result += cons.char + 'ꦾ' + getSandhanganVowel(v); // Pengkal
                                     i = afterYIdx + 1;
+                                    continue;
+                                }
+                            }
+
+                            // 'kle' -> konsonan + pangkon + Nga Lelet (Tidak ada pasangan La Pepet)
+                            if (nextCons && nextCons.key === 'l') {
+                                let afterLIdx = nextIdx + nextCons.len;
+                                if (afterLIdx < word.length && word[afterLIdx] === 'e') {
+                                    result += cons.char + '꧀ꦊ';
+                                    i = afterLIdx + 1;
                                     continue;
                                 }
                             }
@@ -388,7 +399,7 @@
                         if (hasNextCharInWord && isVowel(nextCharInWord)) {
                             result += cons.char + getSandhanganVowel(nextCharInWord);
                             
-                            // HUKUM PANGLANCAR: Pertemuan vokal di tengah kata (Vokal rangkap setelah konsonan)
+                            // HUKUM PANGLANCAR: Vokal Bertemu Vokal / Vokal Rangkap
                             let afterVowelIdx = nextIdx + 1;
                             if (afterVowelIdx < word.length && isVowel(word[afterVowelIdx])) {
                                 let v1 = nextCharInWord;
@@ -489,9 +500,9 @@
                         } else {
                             let handledCrossWord = false;
 
-                            // Jika kata berikutnya berawalan le (pepet), gunakan pangkon + Nga Lelet
+                            // Jika kata berikutnya diawali le (pepet), gunakan pangkon + Nga Lelet 
                             if (nextWordToken && nextWordToken.val.substr(0, 2).toLowerCase() === 'le') {
-                                result += cons.char + '꧀' + 'ꦷ';
+                                result += cons.char + '꧀ꦊ';
                                 nextWordToken.val = nextWordToken.val.substr(2);
                                 handledCrossWord = true;
                             }
@@ -540,7 +551,7 @@
                     if (isVowel(c)) {
                         result += getMandarinVowel(c);
 
-                        // HUKUM PANGLANCAR: Jika diikuti vokal lain di awal kata
+                        // HUKUM PANGLANCAR: Jika diikuti vokal lain (Vokal Rangkap)
                         if (i + 1 < word.length && isVowel(word[i + 1])) {
                             let v1 = c;
                             let v2 = word[i + 1];
