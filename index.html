@@ -189,7 +189,7 @@
                   autocapitalize="none" 
                   autocomplete="off" 
                   spellcheck="false" 
-                  placeholder="Ketik teks Latin di sini..."></textarea>
+                  placeholder="Ketik teks Latin di sini...">wangsa panga resik lemah anak lema suai ruana</textarea>
 
         <div class="label-header">
             <label>Cara Kawi</label>
@@ -201,7 +201,6 @@
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
-            <span>Aturan Ng Mati Tengah Kata (Nga Pasangan)</span>
         </div>
     </div>
 
@@ -219,13 +218,13 @@
         const CONS_MAP = {
             'th': 'ꦛ', 'dh': 'ꦝ', 'ny': 'ꦚ', 'ng': 'ꦔ',
             'TH': 'ꦜ', 'DH': 'ꦞ', 'NY': 'ꦚ', 'NG': 'ꦔ',
-            'kh': 'ꦑ', 'gh': 'ꦓ', 'ch': 'ꦖ', 'jh': 'ꦙ', 'ph': 'ꦦ', 'bh': 'ꦨ',
+            'kh': 'ꦑ', 'gh': 'ꦓ', 'ch': 'ꦖ', 'jh': 'ꦙ', 'ph': 'ꦠ', 'bh': 'ꦨ',
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
             'p':'ꦥ', 'j':'ꦗ', 'y':'ꦪ', 'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ',
             'H':'ꦲ', 'N':'ꦟ', 'C':'ꦖ', 'R':'ꦫ', 'K':'ꦑ',
             'D':'ꦝ', 'T':'ꦛ', 'S':'ꦯ', 'W':'ꦮ', 'L':'ꦭ',
-            'sh':'ꦰ', 'J':'ꦙ', 'Y':'ꦪ', 'M':'ꦩ', 'G':'ꦓ', 'B':'ꦨ'
+            'P':'ꦰ', 'J':'ꦙ', 'Y':'ꦪ', 'M':'ꦩ', 'G':'ꦓ', 'B':'ꦨ'
         };
 
         const VOWELS = ['a', 'i', 'u', 'e', 'é', 'è', 'o', 'A', 'I', 'U', 'E', 'O'];
@@ -243,14 +242,14 @@
             return '';
         }
 
-        function getInitialVowelWyanjana(v) {
-            if (v === 'a' || v === 'A') return 'ꦲ';
-            if (v === 'i' || v === 'I') return 'ꦲꦶ';
-            if (v === 'u' || v === 'U') return 'ꦲꦸ';
-            if (v === 'é' || v === 'è' || v === 'E') return 'ꦲꦺ';
-            if (v === 'o' || v === 'O') return 'ꦲꦺꦴ';
-            if (v === 'e') return 'ꦲꦼ';
-            return 'ꦲ';
+        function getMandarinVowel(v) {
+            if (v === 'a' || v === 'A') return 'ꦄ';
+            if (v === 'i' || v === 'I') return 'ꦆ';
+            if (v === 'u' || v === 'U') return 'ꦈ';
+            if (v === 'é' || v === 'è' || v === 'E') return 'ꦌ';
+            if (v === 'o' || v === 'O') return 'ꦎ';
+            if (v === 'e') return 'ꦄꦼ';
+            return 'ꦄ';
         }
 
         function matchConsonant(str, idx) {
@@ -282,7 +281,8 @@
             }
             return tokens;
         }
-                function transliterateKawi(rawText) {
+
+        function transliterateKawi(rawText) {
             if (!rawText) return '';
 
             let tokens = tokenize(rawText);
@@ -324,23 +324,23 @@
                         continue;
                     }
 
-                    // Pa Cerek (re pepet) = ꦉ
+                    // Pa Cerek (re pepet)
                     if (word.substr(i, 2).toLowerCase() === 're') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
                         if (isStartOfWord || !prevCharIsCons) {
-                            result += 'ꦉ';
+                            result += 'ꦽ';
                             i += 2;
                             continue;
                         }
                     }
 
-                    // Nga Lelet (le pepet) = ꦊ
+                    // Nga Lelet (le pepet)
                     if (word.substr(i, 2).toLowerCase() === 'le') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
                         if (isStartOfWord || !prevCharIsCons) {
-                            result += 'ꦊ';
+                            result += 'ꦷ';
                             i += 2;
                             continue;
                         }
@@ -351,7 +351,7 @@
                     if (cons) {
                         let nextIdx = i + cons.len;
 
-                        // Cek Cakra / Cakra Keret / Pengkal
+                        // Sandhangan Wyanjana DALAM KATA: Cakra, Cakra Keret, Pengkal
                         if (nextIdx < word.length) {
                             let nextCons = matchConsonant(word, nextIdx);
 
@@ -383,9 +383,11 @@
                         let hasNextCharInWord = nextIdx < word.length;
                         let nextCharInWord = hasNextCharInWord ? word[nextIdx] : null;
 
+                        // Konsonan tunggal + Vokal
                         if (hasNextCharInWord && isVowel(nextCharInWord)) {
                             result += cons.char + getSandhanganVowel(nextCharInWord);
 
+                            // Hukum Panglancar (Vokal Rangkap)
                             let afterVowelIdx = nextIdx + 1;
                             if (afterVowelIdx < word.length && isVowel(word[afterVowelIdx])) {
                                 let v1 = nextCharInWord;
@@ -406,13 +408,13 @@
                             continue;
                         }
 
+                        // Konsonan Mati
                         let isWordEnd = !hasNextCharInWord;
 
-                        // 1. NG MATI
+                        // 1. NG MATI (Di tengah kata -> Pasangan Nga ꧀ꦔ)
                         if (cons.key === 'ng') {
                             if (!isWordEnd) {
-                                // Di tengah kata: TIDAK Boleh Cecek. Gunakan Nga Pangkon (ꦔ꧀) agar membentuk pasangan
-                                result += 'ꦔ꧀';
+                                result += '꧀ꦔ';
                                 i += cons.len;
                             } else {
                                 if (nextWordToken && isVowel(nextWordToken.val[0])) {
@@ -420,7 +422,7 @@
                                     result += 'ꦔ' + getSandhanganVowel(v);
                                     nextWordToken.val = nextWordToken.val.substr(1);
                                 } else {
-                                    result += 'ꦁ'; // Cecek hanya di akhir kata
+                                    result += 'ꦁ';
                                 }
                                 i += cons.len;
                             }
@@ -479,23 +481,19 @@
                             continue;
                         }
 
+                        // 4. KONSONAN MATI LAINNYA
                         if (!isWordEnd) {
-                            if (word.substr(nextIdx, 2).toLowerCase() === 'le') {
-                                result += cons.char + '꧀' + 'ꦊ';
-                                i = nextIdx + 2;
-                                continue;
-                            }
-
                             result += cons.char + '꧀';
                             i += cons.len;
                         } else {
                             let handledCrossWord = false;
 
                             if (nextWordToken && nextWordToken.val.substr(0, 2).toLowerCase() === 'le') {
-                                result += cons.char + '꧀' + 'ꦊ';
+                                result += cons.char + '꧀' + 'ꦷ';
                                 nextWordToken.val = nextWordToken.val.substr(2);
                                 handledCrossWord = true;
-                            } else if (nextWordToken && nextWordToken.val.length > 1) {
+                            }
+                            else if (nextWordToken && nextWordToken.val.length > 1) {
                                 let nwCons = matchConsonant(nextWordToken.val, 0);
 
                                 if (nwCons) {
@@ -535,8 +533,9 @@
                         continue;
                     }
 
+                    // Vokal Berdiri Sendiri di Awal Kata
                     if (isVowel(c)) {
-                        result += getInitialVowelWyanjana(c);
+                        result += getMandarinVowel(c);
 
                         if (i + 1 < word.length && isVowel(word[i + 1])) {
                             let v1 = c;
@@ -572,6 +571,7 @@
             charCount.textContent = `Jumlah Karakter: ${jawaText.length}`;
         }
 
+        // Event Listeners
         textInput.addEventListener('input', updatePreview);
 
         fontSizeRange.addEventListener('input', (e) => {
