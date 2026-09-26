@@ -18,6 +18,7 @@
             --card-bg: #ffffff;
             --primary: #2c3e50;
             --accent: #2980b9;
+            --danger: #e74c3c;
             --border: #dcdde1;
             --text: #333333;
         }
@@ -46,47 +47,72 @@
         }
 
         h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 1.6rem;
             color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        p.subtitle {
-            font-size: 0.9rem;
-            color: #666;
+        .subtitle {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-top: 0.2rem;
             margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         .control-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             display: flex;
-            gap: 1rem;
+            gap: 1.5rem;
             align-items: center;
             flex-wrap: wrap;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         label {
             font-weight: 600;
             font-size: 0.85rem;
+            color: #495057;
         }
 
-        select, input[type="range"] {
-            padding: 0.4rem;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 0.9rem;
+        .label-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="range"] {
+            cursor: pointer;
         }
 
         textarea {
             width: 100%;
-            height: 150px;
+            height: 140px;
             padding: 1rem;
             border: 1px solid var(--border);
             border-radius: 4px;
-            font-size: 1rem;
+            font-size: 1.1rem;
             resize: vertical;
             margin-bottom: 1.5rem;
             font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
         }
 
         .preview-container {
@@ -113,19 +139,28 @@
             justify-content: space-between;
         }
 
-        button {
+        .btn {
             background-color: var(--accent);
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 0.8rem;
             border-radius: 4px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            transition: background-color 0.2s;
         }
 
-        button:hover {
+        .btn:hover {
             background-color: #1f618d;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
         }
     </style>
 </head>
@@ -133,35 +168,41 @@
 
     <div class="container">
         <h1>Aplikasi Tata Tulis Aksara Jawa</h1>
-        <p class="subtitle">Engine: Ngayogyan TTF (Standalone Web Application)</p>
+        <div class="subtitle">CARA KAWI (DARI BUKU MARDIKAWI)</div>
 
         <div class="control-group">
-            <div>
+            <div class="control-item">
                 <label for="fontSizeRange">Ukuran Font: <span id="fontSizeVal">32</span>px</label>
                 <input type="range" id="fontSizeRange" min="16" max="64" value="32">
             </div>
-            <div>
+            <div class="control-item">
                 <label for="lineHeightRange">Spasi Baris: <span id="lineHeightVal">2.0</span></label>
                 <input type="range" id="lineHeightRange" min="1.0" max="3.0" step="0.1" value="2.0">
             </div>
-            <button id="copyBtn">Salin Teks</button>
         </div>
 
-        <label for="textInput">Masukkan Teks (Unicode Aksara Jawa):</label>
-        <textarea id="textInput" placeholder="Ketik atau tempel teks aksara Jawa di sini...">ꦲꦤꦕꦫꦏ ꦢꦛꦱꦮꦭ ꦥꦝꦗꦪꦚ ꦩꦒꦧꦛꦔ</textarea>
+        <div class="label-header">
+            <label for="textInput">Teks Latin</label>
+            <button id="clearBtn" class="btn btn-danger">Hapus Semua</button>
+        </div>
+        <textarea id="textInput" placeholder="Ketik teks Latin di sini (misal: hanacaraka data sawala)...">hanacaraka data sawala padhajayanya magabathanga</textarea>
 
-        <label>Hasil Render Tata Tulis:</label>
+        <div class="label-header">
+            <label>Cara Kawi</label>
+            <button id="copyBtn" class="btn">Salin Aksara</button>
+        </div>
         <div class="preview-container">
-            <div id="previewOutput" class="preview-output">ꦲꦤꦕꦫꦏ ꦢꦛꦱꦮꦭ ꦥꦝꦗꦪꦚ ꦩꦒꦧꦛꦔ</div>
+            <div id="previewOutput" class="preview-output"></div>
         </div>
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
-            <span>GitHub Pages Deployment Ready</span>
+            <span>Unicode Aksara Jawa</span>
         </div>
     </div>
 
     <script>
+        // DOM Elements
         const textInput = document.getElementById('textInput');
         const previewOutput = document.getElementById('previewOutput');
         const fontSizeRange = document.getElementById('fontSizeRange');
@@ -170,13 +211,134 @@
         const lineHeightVal = document.getElementById('lineHeightVal');
         const charCount = document.getElementById('charCount');
         const copyBtn = document.getElementById('copyBtn');
+        const clearBtn = document.getElementById('clearBtn');
 
-        function updatePreview() {
-            const content = textInput.value;
-            previewOutput.textContent = content;
-            charCount.textContent = `Jumlah Karakter: ${content.length}`;
+        // Engine Transliterasi Latin ke Aksara Jawa
+        function latinToJawa(str) {
+            if (!str) return '';
+
+            let i = 0;
+            let res = '';
+
+            const isVowel = (c) => 'aeiouéèêoåAEOUI'.includes(c);
+
+            while (i < str.length) {
+                let c = str[i];
+                let c2 = str.substr(i, 2);
+                let c3 = str.substr(i, 3);
+
+                // Angka
+                if (c >= '0' && c <= '9') {
+                    const numMap = {'0':'ꧏ','1':'꧑','2':'꧒','3':'꧓','4':'꧔','5':'꧕','6':'꧖','7':'꧗','8':'꧘','9':'꧙'};
+                    res += numMap[c];
+                    i++;
+                    continue;
+                }
+
+                // Tanda Baca & Karakter Khusus
+                if (c === ' ') { res += ' '; i++; continue; }
+                if (c === '\n') { res += '\n'; i++; continue; }
+                if (c === '.') { res += '꧈ '; i++; continue; }
+                if (c === ',') { res += '꧈ '; i++; continue; }
+
+                // Peta Konsonan Multi-Karakter
+                let consMap = {
+                    'th': 'ꦛ', 'dh': 'ꦝ', 'ny': 'ꦚ', 'ng': 'ꦔ',
+                    'TH': 'ꦜ', 'DH': 'ꦞ', 'NY': 'ꦚ', 'NG': 'ꦔ',
+                    'kh': 'ꦑ', 'gh': 'ꦓ', 'ch': 'ꦖ', 'jh': 'ꦙ',
+                    'ph': 'ꦠ', 'bh': 'ꦨ'
+                };
+
+                // Peta Konsonan Tunggal
+                let singleConsMap = {
+                    'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
+                    'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
+                    'p':'ꦥ', 'j':'ꦗ', 'y':'ꦪ', 'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ',
+                    'H':'ꦲ', 'N':'ꦟ', 'C':'ꦖ', 'R':'ꦫ', 'K':'ꦑ',
+                    'D':'ꦝ', 'T':'ꦛ', 'S':'ꦯ', 'W':'ꦮ', 'L':'ꦭ',
+                    'P':'ꦰ', 'J':'ꦙ', 'Y':'ꦪ', 'M':'ꦩ', 'G':'ꦓ', 'B':'ꦨ'
+                };
+
+                let cons = '';
+                let consLen = 0;
+
+                if (consMap[c2]) {
+                    cons = consMap[c2];
+                    consLen = 2;
+                } else if (singleConsMap[c]) {
+                    cons = singleConsMap[c];
+                    consLen = 1;
+                }
+
+                if (consLen > 0) {
+                    let nextIdx = i + consLen;
+                    let nextChar = str[nextIdx];
+
+                    // Jika diikuti vokal
+                    if (nextChar && isVowel(nextChar)) {
+                        res += cons;
+                        // Sandhangan Swara
+                        if (nextChar === 'i' || nextChar === 'I') res += 'ꦶ';
+                        else if (nextChar === 'u' || nextChar === 'U') res += 'ꦸ';
+                        else if (nextChar === 'e' || nextChar === 'é' || nextChar === 'E') res += 'ꦺ';
+                        else if (nextChar === 'o' || nextChar === 'O') res += 'ꦺꦴ';
+                        else if (nextChar === 'è' || nextChar === 'ê') res += 'ꦼ';
+                        // Vokal 'a' tidak butuh sandhangan tambahan
+                        i = nextIdx + 1;
+                    } 
+                    // Jika diikuti konsonan lain (Pasangan / Pangkon)
+                    else {
+                        // Cek Cecak (ng mati)
+                        if ((c2 === 'ng' || c2 === 'NG') && (!nextChar || !isVowel(nextChar))) {
+                            res += 'ꦁ';
+                            i += 2;
+                        } 
+                        // Cek Layar (r mati)
+                        else if ((c === 'r' || c === 'R') && (!nextChar || !isVowel(nextChar))) {
+                            res += 'ꦺꦂ';
+                            i += 1;
+                        } 
+                        // Cek Wignyan (h mati)
+                        else if ((c === 'h' || c === 'H') && (!nextChar || !isVowel(nextChar))) {
+                            res += 'ꦃ';
+                            i += 1;
+                        } 
+                        else {
+                            res += cons + '꧀';
+                            i += consLen;
+                        }
+                    }
+                    continue;
+                }
+
+                // Vokal Mandiri (Awal Kata / Berdiri Sendiri)
+                if (isVowel(c)) {
+                    if (c === 'a' || c === 'A') res += 'ꦄ';
+                    else if (c === 'i' || c === 'I') res += 'ꦆ';
+                    else if (c === 'u' || c === 'U') res += 'ꦈ';
+                    else if (c === 'e' || c === 'E' || c === 'é') res += 'ꦌ';
+                    else if (c === 'o' || c === 'O') res += 'ꦎ';
+                    else res += 'ꦄ';
+                    i++;
+                    continue;
+                }
+
+                // Karakter Lainnya
+                res += c;
+                i++;
+            }
+
+            return res;
         }
 
+        function updatePreview() {
+            const latinText = textInput.value;
+            const jawaText = latinToJawa(latinText);
+            previewOutput.textContent = jawaText;
+            charCount.textContent = `Jumlah Karakter: ${jawaText.length}`;
+        }
+
+        // Event Listeners
         textInput.addEventListener('input', updatePreview);
 
         fontSizeRange.addEventListener('input', (e) => {
@@ -192,11 +354,20 @@
         });
 
         copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(textInput.value).then(() => {
-                alert('Teks berhasil disalin ke papan klip.');
+            const textToCopy = previewOutput.textContent;
+            if (!textToCopy) return;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('Aksara Jawa berhasil disalin ke papan klip.');
             });
         });
 
+        clearBtn.addEventListener('click', () => {
+            textInput.value = '';
+            updatePreview();
+            textInput.focus();
+        });
+
+        // Inisialisasi awal
         updatePreview();
     </script>
 </body>
