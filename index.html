@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplikasi Tata Tulis Aksara Jawa</title>
     <style>
-        /* Konfigurasi font lokal Ngayogyan.ttf */
         @font-face {
             font-family: 'Ngayogyan';
             src: url('ngayogyan.ttf') format('truetype');
@@ -38,7 +37,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 950px;
             margin: 0 auto;
             background: var(--card-bg);
             padding: 2rem;
@@ -144,16 +143,61 @@
             transition: background-color 0.2s;
         }
 
-        .btn:hover {
-            background-color: #1f618d;
+        .btn:hover { background-color: #1f618d; }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #c0392b; }
+
+        .info-panel {
+            margin-top: 2rem;
+            border-top: 2px solid var(--border);
+            padding-top: 1.5rem;
         }
 
-        .btn-danger {
-            background-color: var(--danger);
+        .info-panel h3 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
         }
 
-        .btn-danger:hover {
-            background-color: #c0392b;
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .info-box h4 {
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .info-box ul {
+            list-style-type: none;
+        }
+
+        .info-box li {
+            margin-bottom: 0.4rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #dcdde1;
+            padding-bottom: 0.2rem;
+        }
+
+        .info-box code {
+            background: #e1e5ea;
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #d35400;
         }
     </style>
 </head>
@@ -195,6 +239,61 @@
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
         </div>
+
+        <!-- Panel Informasi Teknis / Cheat Sheet -->
+        <div class="info-panel">
+            <h3>Panduan & Referensi Pengetikan (Cheat Sheet)</h3>
+            <div class="info-grid">
+                <div class="info-box">
+                    <h4>Vokal Panjang & Diftong</h4>
+                    <ul>
+                        <li><span>Sandhangan <b>a</b> panjang (ꦴ)</span> <code>aa</code></li>
+                        <li><span>Sandhangan <b>i</b> panjang (ꦷ)</span> <code>ii</code></li>
+                        <li><span>Sandhangan <b>u</b> panjang (ꦹ)</span> <code>uu</code></li>
+                        <li><span>Diftong <b>ai</b> (ꦻ)</span> <code>ai</code></li>
+                        <li><span>Diftong <b>au</b> (ꦻꦴ)</span> <code>au</code></li>
+                        <li><span style="font-size: 0.8rem; color: #555; margin-top:0.3rem;"><i>*Untuk memaksa <b>Hukum Panglancar</b> (mencegah diftong/panjang), sisipkan tanda hubung. Cth: <code>a-i</code> (ꦲꦶ), <code>a-a</code> (ꦲꦴ)</i></span></li>
+                    </ul>
+                </div>
+                
+                <div class="info-box">
+                    <h4>Aksara Swara (Ketik Kapital)</h4>
+                    <ul>
+                        <li><span>Aksara <b>A</b> (ꦄ) / Panjang (ꦄꦴ)</span> <code>A</code> / <code>AA</code></li>
+                        <li><span>Aksara <b>I</b> (ꦅ) / Panjang (ꦆ)</span> <code>I</code> / <code>II</code></li>
+                        <li><span>Aksara <b>U</b> (ꦈ) / Panjang (ꦈꦴ)</span> <code>U</code> / <code>UU</code></li>
+                        <li><span>Aksara <b>E</b> (ꦌ) / <b>O</b> (ꦎ)</span> <code>E</code> / <code>O</code></li>
+                        <li><span>Diftong <b>AI</b> (ꦍ) / <b>AU</b> (ꦎꦴ)</span> <code>AI</code> / <code>AU</code></li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Pada & Tanda Baca (Ketik Macro)</h4>
+                    <ul>
+                        <li><span>Pada Luhur (꧞)</span> <code>@luhur</code></li>
+                        <li><span>Pada Madya (꧟)</span> <code>@madya</code></li>
+                        <li><span>Pada Andhap (ꧠ)</span> <code>@andhap</code></li>
+                        <li><span>Purwapada (꧅)</span> <code>@purwa</code></li>
+                        <li><span>Madyapada (꧆)</span> <code>@madyapada</code></li>
+                        <li><span>Wasanapada (꧄)</span> <code>@wasana</code></li>
+                        <li><span>Guru/Uger-uger (꧃)</span> <code>@guru</code></li>
+                        <li><span>Pada Pancak (꧉)</span> <code>@pancak</code></li>
+                        <li><span>Lingsa (꧈) / Lungsi (꧉)</span> <code>,</code> / <code>.</code></li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Aturan Tambahan</h4>
+                    <ul>
+                        <li><span>Ta Mahaprana (ꦡ)</span> <code>tH</code> atau <code>Th</code></li>
+                        <li><span>Da Mahaprana (ꦣ)</span> <code>dH</code> atau <code>Dh</code></li>
+                        <li><span>Pa Cerek (ꦉ / ꦽ)</span> ketik <code>re</code></li>
+                        <li><span>Nga Lelet (ꦊ / ꦷ)</span> ketik <code>le</code></li>
+                        <li><span>Pada Pangkat Angka (꧇)</span> <i>Otomatis mengapit angka. Cth: <code>123</code> (꧇꧑꧒꧓꧇)</i></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -208,7 +307,6 @@
         const copyBtn = document.getElementById('copyBtn');
         const clearBtn = document.getElementById('clearBtn');
 
-        // Penambahan kombinasi tH, dH, Th, dan Dh untuk Ta Mahaprana & Da Mahaprana
         const CONS_MAP = {
             'th': 'ꦛ', 'dh': 'ꦝ', 'ny': 'ꦚ', 'ng': 'ꦔ',
             'TH': 'ꦜ', 'DH': 'ꦞ', 'NY': 'ꦚ', 'NG': 'ꦔ',
@@ -222,10 +320,16 @@
             'sh':'ꦰ', 'J':'ꦙ', 'Y':'ꦪ', 'M':'ꦩ', 'G':'ꦓ', 'B':'ꦨ'
         };
 
-        const VOWELS = ['a', 'i', 'u', 'e', 'é', 'è', 'o', 'A', 'I', 'U', 'E', 'O'];
-
-        function isVowel(c) {
-            return VOWELS.includes(c);
+        function matchVowel(str, idx) {
+            let sub2 = str.substr(idx, 2);
+            if (['aa', 'ii', 'uu', 'ai', 'au', 'AA', 'II', 'UU', 'AI', 'AU'].includes(sub2)) {
+                return { val: sub2, len: 2 };
+            }
+            let sub1 = str.substr(idx, 1);
+            if (['a', 'i', 'u', 'e', 'é', 'è', 'o', 'A', 'I', 'U', 'E', 'O'].includes(sub1)) {
+                return { val: sub1, len: 1 };
+            }
+            return null;
         }
 
         function getSandhanganVowel(v) {
@@ -234,27 +338,41 @@
             if (v === 'é' || v === 'è' || v === 'E') return 'ꦺ';
             if (v === 'o' || v === 'O') return 'ꦺꦴ';
             if (v === 'e') return 'ꦼ';
+            if (v === 'aa') return 'ꦴ';
+            if (v === 'ii') return 'ꦷ';
+            if (v === 'uu') return 'ꦹ';
+            if (v === 'ai') return 'ꦻ';
+            if (v === 'au') return 'ꦻꦴ';
             return '';
         }
 
         function getMandarinVowel(v) {
             const isCapital = (v === v.toUpperCase() && v !== v.toLowerCase());
 
-            // Aturan Otomatis: Kapital = Aksara Swara, Kecil = Aksara Ha
             if (isCapital) {
                 if (v === 'A') return 'ꦄ';
-                if (v === 'I') return 'ꦆ';
+                if (v === 'AA') return 'ꦄꦴ';
+                if (v === 'I') return 'ꦅ';
+                if (v === 'II') return 'ꦆ';
                 if (v === 'U') return 'ꦈ';
+                if (v === 'UU') return 'ꦈꦴ';
                 if (v === 'E' || v === 'É' || v === 'È') return 'ꦌ';
                 if (v === 'O') return 'ꦎ';
+                if (v === 'AI') return 'ꦍ';
+                if (v === 'AU') return 'ꦎꦴ';
                 return 'ꦄ';
             } else {
                 if (v === 'a') return 'ꦲ';
+                if (v === 'aa') return 'ꦲꦴ';
                 if (v === 'i') return 'ꦲꦶ';
+                if (v === 'ii') return 'ꦲꦷ';
                 if (v === 'u') return 'ꦲꦸ';
+                if (v === 'uu') return 'ꦲꦹ';
                 if (v === 'é' || v === 'è') return 'ꦲꦺ';
                 if (v === 'o') return 'ꦲꦺꦴ';
                 if (v === 'e') return 'ꦲꦼ';
+                if (v === 'ai') return 'ꦲꦻ';
+                if (v === 'au') return 'ꦲꦻꦴ';
                 return 'ꦲ';
             }
         }
@@ -273,7 +391,8 @@
 
             for (let i = 0; i < rawStr.length; i++) {
                 let c = rawStr[i];
-                if (/[a-zA-ZéèÉÈ0-9]/.test(c)) {
+                // Tanda hubung (-) dibolehkan di dalam word token sebagai pemisah vokal (Panglancar)
+                if (/[a-zA-ZéèÉÈ0-9\-]/.test(c)) {
                     currentWord += c;
                 } else {
                     if (currentWord) {
@@ -289,9 +408,22 @@
             return tokens;
         }
 
+        function processMacros(text) {
+            return text.replace(/@luhur/g, '꧞')
+                       .replace(/@madya/g, '꧟')
+                       .replace(/@andhap/g, 'ꧠ')
+                       .replace(/@purwa/g, '꧅')
+                       .replace(/@madyapada/g, '꧆')
+                       .replace(/@wasana/g, '꧄')
+                       .replace(/@guru/g, '꧃')
+                       .replace(/@uger/g, '꧃')
+                       .replace(/@pancak/g, '꧉');
+        }
+
         function transliterateKawi(rawText) {
             if (!rawText) return '';
-
+            
+            rawText = processMacros(rawText);
             let tokens = tokenize(rawText);
             let result = '';
 
@@ -299,9 +431,9 @@
                 let token = tokens[t];
 
                 if (token.type === 'sep') {
-                    if (token.val === ' ') continue; // Scriptio Continua
+                    if (token.val === ' ') continue; 
                     if (token.val === '\n') { result += '\n'; continue; }
-                    if (token.val === '.') { result += '꧈'; continue; }
+                    if (token.val === '.') { result += '꧉'; continue; }
                     if (token.val === ',') { result += '꧈'; continue; }
                     result += token.val;
                     continue;
@@ -324,29 +456,42 @@
                 while (i < word.length) {
                     let c = word[i];
 
-                    if (c >= '0' && c <= '9') {
-                        const numMap = {'0':'ꧏ','1':'꧑','2':'꧒','3':'꧓','4':'꧔','5':'꧕','6':'꧖','7':'꧗','8':'꧘','9':'꧙'};
-                        result += numMap[c];
+                    // Tanda hubung dalam token dilewati untuk memecah vokal (memaksa Hukum Panglancar)
+                    if (c === '-') {
                         i++;
                         continue;
                     }
 
-                    // Cek Pa Cerek (re pepet) - Aksara Mandiri
+                    // Deret Angka dengan Pada Pangkat
+                    if (c >= '0' && c <= '9') {
+                        let numStr = '';
+                        while (i < word.length && word[i] >= '0' && word[i] <= '9') {
+                            const numMap = {'0':'ꧏ','1':'꧑','2':'꧒','3':'꧓','4':'꧔','5':'꧕','6':'꧖','7':'꧗','8':'꧘','9':'꧙'};
+                            numStr += numMap[word[i]];
+                            i++;
+                        }
+                        result += '꧇' + numStr + '꧇';
+                        continue;
+                    }
+
+                    // Pa Cerek (re) Aksara Mandiri
                     if (word.substr(i, 2).toLowerCase() === 're') {
                         let isStartOfWord = (i === 0);
-                        let prevCharIsVowel = (i > 0 && isVowel(word[i - 1]));
-                        if (isStartOfWord || prevCharIsVowel) {
+                        let prevCharIsVowel = (i > 0 && matchVowel(word, i - 1));
+                        let prevCharIsHyphen = (i > 0 && word[i - 1] === '-');
+                        if (isStartOfWord || prevCharIsVowel || prevCharIsHyphen) {
                             result += 'ꦉ'; 
                             i += 2;
                             continue;
                         }
                     }
 
-                    // Cek Nga Lelet (le pepet) - Aksara Mandiri
+                    // Nga Lelet (le) Aksara Mandiri
                     if (word.substr(i, 2).toLowerCase() === 'le') {
                         let isStartOfWord = (i === 0);
-                        let prevCharIsVowel = (i > 0 && isVowel(word[i - 1]));
-                        if (isStartOfWord || prevCharIsVowel) {
+                        let prevCharIsVowel = (i > 0 && matchVowel(word, i - 1));
+                        let prevCharIsHyphen = (i > 0 && word[i - 1] === '-');
+                        if (isStartOfWord || prevCharIsVowel || prevCharIsHyphen) {
                             result += 'ꦊ'; 
                             i += 2;
                             continue;
@@ -361,67 +506,80 @@
                         if (nextIdx < word.length) {
                             let nextCons = matchConsonant(word, nextIdx);
 
+                            // Cakra / Cakra Keret
                             if (nextCons && nextCons.key === 'r') {
                                 let afterRIdx = nextIdx + nextCons.len;
-                                if (afterRIdx < word.length && isVowel(word[afterRIdx])) {
-                                    let v = word[afterRIdx];
+                                let rVowel = matchVowel(word, afterRIdx);
+                                if (rVowel) {
+                                    let v = rVowel.val;
                                     if (v === 'e') {
                                         result += cons.char + 'ꦽ'; 
                                     } else {
                                         result += cons.char + 'ꦿ' + getSandhanganVowel(v); 
                                     }
-                                    i = afterRIdx + 1;
+                                    i = afterRIdx + rVowel.len;
                                     continue;
                                 }
                             }
 
+                            // Pengkal
                             if (nextCons && nextCons.key === 'y') {
                                 let afterYIdx = nextIdx + nextCons.len;
-                                if (afterYIdx < word.length && isVowel(word[afterYIdx])) {
-                                    let v = word[afterYIdx];
+                                let yVowel = matchVowel(word, afterYIdx);
+                                if (yVowel) {
+                                    let v = yVowel.val;
                                     result += cons.char + 'ꦾ' + getSandhanganVowel(v); 
-                                    i = afterYIdx + 1;
+                                    i = afterYIdx + yVowel.len;
                                     continue;
                                 }
                             }
 
+                            // Tidak ada pasangan La Pepet
                             if (nextCons && nextCons.key === 'l') {
                                 let afterLIdx = nextIdx + nextCons.len;
-                                if (afterLIdx < word.length && word[afterLIdx] === 'e') {
+                                let lVowel = matchVowel(word, afterLIdx);
+                                if (lVowel && lVowel.val === 'e') {
                                     result += cons.char + '꧀ꦊ';
-                                    i = afterLIdx + 1;
+                                    i = afterLIdx + lVowel.len;
                                     continue;
                                 }
                             }
                         }
 
-                        let hasNextCharInWord = nextIdx < word.length;
-                        let nextCharInWord = hasNextCharInWord ? word[nextIdx] : null;
+                        // Menggunakan sistem skip hyphen internal
+                        let peekIdx = nextIdx;
+                        while(peekIdx < word.length && word[peekIdx] === '-') peekIdx++;
 
-                        if (hasNextCharInWord && isVowel(nextCharInWord)) {
-                            result += cons.char + getSandhanganVowel(nextCharInWord);
+                        let nextV = matchVowel(word, peekIdx);
+                        if (nextV) {
+                            result += cons.char + getSandhanganVowel(nextV.val);
                             
-                            let afterVowelIdx = nextIdx + 1;
-                            if (afterVowelIdx < word.length && isVowel(word[afterVowelIdx])) {
-                                let v1 = nextCharInWord;
-                                let v2 = word[afterVowelIdx];
+                            let afterVowelIdx = peekIdx + nextV.len;
+                            while(afterVowelIdx < word.length && word[afterVowelIdx] === '-') {
+                                afterVowelIdx++;
+                            }
+                            
+                            let nextV2 = matchVowel(word, afterVowelIdx);
+                            if (nextV2) {
+                                let v1 = nextV.val;
+                                let v2 = nextV2.val;
 
-                                if (['i', 'I', 'é', 'è', 'E'].includes(v1)) {
+                                if (['i', 'I', 'é', 'è', 'E', 'ii', 'II'].includes(v1)) {
                                     result += 'ꦪ' + getSandhanganVowel(v2);
-                                } else if (['u', 'U', 'o', 'O'].includes(v1)) {
+                                } else if (['u', 'U', 'o', 'O', 'uu', 'UU'].includes(v1)) {
                                     result += 'ꦮ' + getSandhanganVowel(v2);
                                 } else {
                                     result += 'ꦲ' + getSandhanganVowel(v2);
                                 }
-                                i = afterVowelIdx + 1;
+                                i = afterVowelIdx + nextV2.len;
                                 continue;
                             }
 
-                            i = nextIdx + 1;
+                            i = peekIdx + nextV.len;
                             continue;
                         }
 
-                        let isWordEnd = !hasNextCharInWord;
+                        let isWordEnd = !nextV && (peekIdx >= word.length);
 
                         // 1. NG MATI
                         if (cons.key === 'ng') {
@@ -429,10 +587,11 @@
                                 result += 'ꦔ꧀'; 
                                 i += cons.len;
                             } else {
-                                if (nextWordToken && isVowel(nextWordToken.val[0])) {
-                                    let v = nextWordToken.val[0];
+                                let crossVowel = nextWordToken ? matchVowel(nextWordToken.val, 0) : null;
+                                if (crossVowel) {
+                                    let v = crossVowel.val;
                                     result += 'ꦔ' + getSandhanganVowel(v);
-                                    nextWordToken.val = nextWordToken.val.substr(1);
+                                    nextWordToken.val = nextWordToken.val.substr(crossVowel.len);
                                 } else {
                                     result += 'ꦁ'; 
                                 }
@@ -447,10 +606,11 @@
                                 result += 'ꦲ꧀';
                                 i += cons.len;
                             } else {
-                                if (nextWordToken && isVowel(nextWordToken.val[0])) {
-                                    let v = nextWordToken.val[0];
+                                let crossVowel = nextWordToken ? matchVowel(nextWordToken.val, 0) : null;
+                                if (crossVowel) {
+                                    let v = crossVowel.val;
                                     result += 'ꦲ' + getSandhanganVowel(v);
-                                    nextWordToken.val = nextWordToken.val.substr(1);
+                                    nextWordToken.val = nextWordToken.val.substr(crossVowel.len);
                                 } else {
                                     result += 'ꦃ';
                                 }
@@ -463,28 +623,30 @@
                         if (cons.key === 'r') {
                             if (!isWordEnd) {
                                 result += 'ꦫ꧀';
-                                let nextCons = matchConsonant(word, nextIdx);
+                                let nextCons = matchConsonant(word, peekIdx);
 
                                 if (nextCons) {
-                                    let cons2Idx = nextIdx + nextCons.len;
-                                    let hasVowel2 = cons2Idx < word.length && isVowel(word[cons2Idx]);
+                                    let cons2Idx = peekIdx + nextCons.len;
+                                    while(cons2Idx < word.length && word[cons2Idx] === '-') cons2Idx++;
+                                    let v2Match = matchVowel(word, cons2Idx);
 
-                                    if (hasVowel2) {
-                                        let v2 = word[cons2Idx];
+                                    if (v2Match) {
+                                        let v2 = v2Match.val;
                                         result += nextCons.char + '꧀' + nextCons.char + getSandhanganVowel(v2);
-                                        i = cons2Idx + 1;
+                                        i = cons2Idx + v2Match.len;
                                     } else {
                                         result += nextCons.char + '꧀' + nextCons.char + '꧀';
-                                        i = cons2Idx;
+                                        i = peekIdx + nextCons.len;
                                     }
                                 } else {
                                     i += cons.len;
                                 }
                             } else {
-                                if (nextWordToken && isVowel(nextWordToken.val[0])) {
-                                    let v = nextWordToken.val[0];
+                                let crossVowel = nextWordToken ? matchVowel(nextWordToken.val, 0) : null;
+                                if (crossVowel) {
+                                    let v = crossVowel.val;
                                     result += 'ꦫ' + getSandhanganVowel(v);
-                                    nextWordToken.val = nextWordToken.val.substr(1);
+                                    nextWordToken.val = nextWordToken.val.substr(crossVowel.len);
                                 } else {
                                     result += 'ꦫ꧀';
                                 }
@@ -510,8 +672,10 @@
 
                                 if (nwCons) {
                                     let afterNwConsIdx = nwCons.len;
-                                    if (afterNwConsIdx < nextWordToken.val.length && isVowel(nextWordToken.val[afterNwConsIdx])) {
-                                        let v = nextWordToken.val[afterNwConsIdx];
+                                    let crossVowel = matchVowel(nextWordToken.val, afterNwConsIdx);
+
+                                    if (crossVowel) {
+                                        let v = crossVowel.val;
 
                                         if (nwCons.key === 'r') {
                                             if (v === 'e') {
@@ -519,11 +683,11 @@
                                             } else {
                                                 result += cons.char + 'ꦿ' + getSandhanganVowel(v);
                                             }
-                                            nextWordToken.val = nextWordToken.val.substr(afterNwConsIdx + 1);
+                                            nextWordToken.val = nextWordToken.val.substr(afterNwConsIdx + crossVowel.len);
                                             handledCrossWord = true;
                                         } else if (nwCons.key === 'y') {
                                             result += cons.char + 'ꦾ' + getSandhanganVowel(v);
-                                            nextWordToken.val = nextWordToken.val.substr(afterNwConsIdx + 1);
+                                            nextWordToken.val = nextWordToken.val.substr(afterNwConsIdx + crossVowel.len);
                                             handledCrossWord = true;
                                         }
                                     }
@@ -531,17 +695,16 @@
                             }
 
                             if (!handledCrossWord) {
-                                if (nextWordToken && isVowel(nextWordToken.val[0])) {
-                                    let v = nextWordToken.val[0];
-                                    
-                                    // Pengecekan Khusus: Jika vokal berikutnya adalah KAPITAL, matikan konsonan saat ini dengan pangkon
+                                let crossVowel = nextWordToken ? matchVowel(nextWordToken.val, 0) : null;
+                                if (crossVowel) {
+                                    let v = crossVowel.val;
                                     let isNextVowelCapital = (v === v.toUpperCase() && v !== v.toLowerCase());
                                     
                                     if (isNextVowelCapital) {
                                         result += cons.char + '꧀'; 
                                     } else {
                                         result += cons.char + getSandhanganVowel(v); 
-                                        nextWordToken.val = nextWordToken.val.substr(1);
+                                        nextWordToken.val = nextWordToken.val.substr(crossVowel.len);
                                     }
                                 } else {
                                     result += cons.char + '꧀';
@@ -553,25 +716,33 @@
                         continue;
                     }
 
-                    if (isVowel(c)) {
-                        result += getMandarinVowel(c);
+                    // Vokal Berdiri Sendiri di Awal Kata
+                    let vMatch = matchVowel(word, i);
+                    if (vMatch) {
+                        result += getMandarinVowel(vMatch.val);
 
-                        if (i + 1 < word.length && isVowel(word[i + 1])) {
-                            let v1 = c;
-                            let v2 = word[i + 1];
+                        let afterVowelIdx = i + vMatch.len;
+                        while(afterVowelIdx < word.length && word[afterVowelIdx] === '-') {
+                            afterVowelIdx++;
+                        }
+                        
+                        let nextV2 = matchVowel(word, afterVowelIdx);
+                        if (nextV2) {
+                            let v1 = vMatch.val;
+                            let v2 = nextV2.val;
 
-                            if (['i', 'I', 'é', 'è', 'E'].includes(v1)) {
+                            if (['i', 'I', 'é', 'è', 'E', 'ii', 'II'].includes(v1)) {
                                 result += 'ꦪ' + getSandhanganVowel(v2);
-                            } else if (['u', 'U', 'o', 'O'].includes(v1)) {
+                            } else if (['u', 'U', 'o', 'O', 'uu', 'UU'].includes(v1)) {
                                 result += 'ꦮ' + getSandhanganVowel(v2);
                             } else {
                                 result += 'ꦲ' + getSandhanganVowel(v2);
                             }
-                            i += 2;
+                            i = afterVowelIdx + nextV2.len;
                             continue;
                         }
 
-                        i++;
+                        i += vMatch.len;
                         continue;
                     }
 
