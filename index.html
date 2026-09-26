@@ -201,7 +201,7 @@
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
-            <span>Unicode: Pa Cerek (ꦉ) & Nga Lelet (ꦊ)</span>
+            <span>Pasangan Nga Lelet (꧀ꦊ)</span>
         </div>
     </div>
 
@@ -476,12 +476,19 @@
                         }
 
                         if (!isWordEnd) {
+                            // Mengganti pasangan la pepet dengan pasangan le (pasangan Nga Lelet: ꧀ꦊ) dalam kata
+                            if (word.substr(nextIdx, 2).toLowerCase() === 'le') {
+                                result += cons.char + '꧀' + 'ꦊ';
+                                i = nextIdx + 2;
+                                continue;
+                            }
+
                             result += cons.char + '꧀';
                             i += cons.len;
                         } else {
                             let handledCrossWord = false;
 
-                            // Tidak ada pasangan la pepet -> Gunakan Pangkon + Nga Lelet (ꦊ)
+                            // Mengganti pasangan la pepet lintas kata dengan pasangan le (pasangan Nga Lelet: ꧀ꦊ)
                             if (nextWordToken && nextWordToken.val.substr(0, 2).toLowerCase() === 'le') {
                                 result += cons.char + '꧀' + 'ꦊ';
                                 nextWordToken.val = nextWordToken.val.substr(2);
