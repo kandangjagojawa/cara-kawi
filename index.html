@@ -189,7 +189,7 @@
                   autocapitalize="none" 
                   autocomplete="off" 
                   spellcheck="false" 
-                  placeholder="Ketik teks Latin di sini...">anak rasa ingkang utami</textarea>
+                  placeholder="Ketik teks Latin di sini..."></textarea>
 
         <div class="label-header">
             <label>Cara Kawi</label>
@@ -201,7 +201,7 @@
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
-            <span>Pemetaan Konsonan Kawi Diperbarui</span>
+            <span>Validasi Struktural Sandhangan Wyanjana</span>
         </div>
     </div>
 
@@ -282,7 +282,7 @@
             }
             return tokens;
         }
-                function transliterateKawi(rawText) {
+           function transliterateKawi(rawText) {
             if (!rawText) return '';
 
             let tokens = tokenize(rawText);
@@ -324,6 +324,7 @@
                         continue;
                     }
 
+                    // Pa Cerek (re pepet) di awal kata menjadi Pa Cerek (ꦽ/ꦯ), bukan Cakra Keret
                     if (word.substr(i, 2).toLowerCase() === 're') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
@@ -334,6 +335,7 @@
                         }
                     }
 
+                    // Nga Lelet (le pepet)
                     if (word.substr(i, 2).toLowerCase() === 'le') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
@@ -349,6 +351,7 @@
                     if (cons) {
                         let nextIdx = i + cons.len;
 
+                        // Cek Cakra / Cakra Keret / Pengkal (Memastikan ada konsonan utama sebelum sandhangan wyanjana)
                         if (nextIdx < word.length) {
                             let nextCons = matchConsonant(word, nextIdx);
 
