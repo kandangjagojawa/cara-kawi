@@ -201,7 +201,7 @@
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
-            <span>Pasangan Nga Lelet (꧀ꦊ)</span>
+            <span>Aturan Ng Mati Tengah Kata (Nga Pasangan)</span>
         </div>
     </div>
 
@@ -408,9 +408,11 @@
 
                         let isWordEnd = !hasNextCharInWord;
 
+                        // 1. NG MATI
                         if (cons.key === 'ng') {
                             if (!isWordEnd) {
-                                result += 'ꦁ';
+                                // Di tengah kata: TIDAK Boleh Cecek. Gunakan Nga Pangkon (ꦔ꧀) agar membentuk pasangan
+                                result += 'ꦔ꧀';
                                 i += cons.len;
                             } else {
                                 if (nextWordToken && isVowel(nextWordToken.val[0])) {
@@ -418,13 +420,14 @@
                                     result += 'ꦔ' + getSandhanganVowel(v);
                                     nextWordToken.val = nextWordToken.val.substr(1);
                                 } else {
-                                    result += 'ꦁ';
+                                    result += 'ꦁ'; // Cecek hanya di akhir kata
                                 }
                                 i += cons.len;
                             }
                             continue;
                         }
 
+                        // 2. HA MATI
                         if (cons.key === 'h') {
                             if (!isWordEnd) {
                                 result += 'ꦲ꧀';
@@ -442,6 +445,7 @@
                             continue;
                         }
 
+                        // 3. RA MATI
                         if (cons.key === 'r') {
                             if (!isWordEnd) {
                                 result += 'ꦫ꧀';
@@ -476,7 +480,6 @@
                         }
 
                         if (!isWordEnd) {
-                            // Mengganti pasangan la pepet dengan pasangan le (pasangan Nga Lelet: ꧀ꦊ) dalam kata
                             if (word.substr(nextIdx, 2).toLowerCase() === 'le') {
                                 result += cons.char + '꧀' + 'ꦊ';
                                 i = nextIdx + 2;
@@ -488,7 +491,6 @@
                         } else {
                             let handledCrossWord = false;
 
-                            // Mengganti pasangan la pepet lintas kata dengan pasangan le (pasangan Nga Lelet: ꧀ꦊ)
                             if (nextWordToken && nextWordToken.val.substr(0, 2).toLowerCase() === 'le') {
                                 result += cons.char + '꧀' + 'ꦊ';
                                 nextWordToken.val = nextWordToken.val.substr(2);
