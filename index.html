@@ -254,7 +254,8 @@
                         <li><span><b>n</b> + Talawya </span> <code>ꦚ</code></li>
                         <li><span><b>n</b> + Murdhanya </span> <code>ꦟ</code></li>
                         <li><span><b>n</b> + Dantya </span> <code>ꦤ</code></li>
-                        <li><span>Pasca-<b>r</b>: n &rarr; ꦟ, s &rarr;</span> <code>ꦰ</code></li>
+                        <li><span>Pasca-<b>r</b>: ꦰ dan ꦡ</span> <i>(tidak didobel)</i></li>
+                        <li><span>Pasca-<b>r</b>: n &rarr; ꦟ꧀ꦤ</span> <code>ꦟ꧀ꦤ</code></li>
                         <li><span><b>k</b> mati + s </span> <code>ꦰ</code></li>
                     </ul>
                 </div>
@@ -695,17 +696,31 @@
                             continue;
                         }
 
-                        // 3. RA MATI
+                        // 3. RA MATI (Dengan perbaikan pengecualian Dobel untuk ꦰ, ꦡ, dan wujud ꦟ)
                         if (cons.key === 'r') {
                             if (!isWordEnd) {
                                 result += 'ꦫ꧀';
                                 let nextConsTemp = matchConsonant(word, peekIdx);
 
                                 if (nextConsTemp) {
-                                    let consChar2 = nextConsTemp.char;
+                                    let consChar2_1 = nextConsTemp.char;
+                                    let consChar2_2 = nextConsTemp.char;
+                                    let doubleIt = true;
                                     
-                                    if (nextConsTemp.key === 'n') consChar2 = 'ꦟ';
-                                    if (nextConsTemp.key === 's') consChar2 = 'ꦰ';
+                                    // Pengecualian 1: n -> ꦟ꧀ꦤ
+                                    if (nextConsTemp.key === 'n' || nextConsTemp.key === 'N' || consChar2_1 === 'ꦟ') {
+                                        consChar2_1 = 'ꦟ';
+                                        consChar2_2 = 'ꦤ'; 
+                                    } 
+                                    // Pengecualian 2: s -> ꦰ (Tidak didobel)
+                                    else if (nextConsTemp.key === 's' || nextConsTemp.key === 'sh' || consChar2_1 === 'ꦰ') {
+                                        consChar2_1 = 'ꦰ';
+                                        doubleIt = false;
+                                    } 
+                                    // Pengecualian 3: ꦡ (Tidak didobel)
+                                    else if (consChar2_1 === 'ꦡ') {
+                                        doubleIt = false;
+                                    }
                                     
                                     let cons2Idx = peekIdx + nextConsTemp.len;
                                     while(cons2Idx < word.length && word[cons2Idx] === '-') cons2Idx++;
@@ -713,11 +728,19 @@
 
                                     if (v2Match) {
                                         let v2 = v2Match.val;
-                                        result += consChar2 + '꧀' + consChar2 + getSandhanganVowel(v2);
+                                        if (doubleIt) {
+                                            result += consChar2_1 + '꧀' + consChar2_2 + getSandhanganVowel(v2);
+                                        } else {
+                                            result += consChar2_1 + getSandhanganVowel(v2);
+                                        }
                                         i = cons2Idx + v2Match.len;
                                         lastConsIsMati = false;
                                     } else {
-                                        result += consChar2 + '꧀' + consChar2 + '꧀';
+                                        if (doubleIt) {
+                                            result += consChar2_1 + '꧀' + consChar2_2 + '꧀';
+                                        } else {
+                                            result += consChar2_1 + '꧀';
+                                        }
                                         i = peekIdx + nextConsTemp.len;
                                         lastConsIsMati = true;
                                     }
