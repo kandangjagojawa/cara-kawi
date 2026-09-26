@@ -244,21 +244,6 @@
         <div class="info-panel">
             <h3>Panduan & Referensi Pengetikan (Cheat Sheet)</h3>
             <div class="info-grid">
-                
-                <div class="info-box">
-                    <h4>Hukum Sandhi (Warga Aksara)</h4>
-                    <ul>
-                        <li><span><b>s</b> + Talawya (c,j,ny,y) </span> <code>ꦯ</code></li>
-                        <li><span><b>s</b> + Murdhanya (th,dh,r) </span> <code>ꦰ</code></li>
-                        <li><span><b>s</b> + Dantya/Osthya/Kanthya</span> <code>ꦱ</code></li>
-                        <li><span><b>n</b> + Talawya </span> <code>ꦚ</code></li>
-                        <li><span><b>n</b> + Murdhanya </span> <code>ꦟ</code></li>
-                        <li><span><b>n</b> + Dantya </span> <code>ꦤ</code></li>
-                        <li><span>Pasca-<b>r</b>: ꦰ dan ꦡ</span> <i>(tidak didobel)</i></li>
-                        <li><span>Pasca-<b>r</b>: n &rarr; ꦟ꧀ꦤ</span> <code>ꦟ꧀ꦤ</code></li>
-                        <li><span><b>k</b> mati + s </span> <code>ꦰ</code></li>
-                    </ul>
-                </div>
 
                 <div class="info-box">
                     <h4>Vokal Panjang & Diftong</h4>
@@ -334,7 +319,6 @@
             'sh':'ꦰ', 'J':'ꦙ', 'Y':'ꦪ', 'M':'ꦩ', 'G':'ꦓ', 'B':'ꦨ'
         };
 
-        // Fungsi identifikasi Warga Aksara
         function getWarga(char) {
             if (['ꦕ','ꦖ','ꦗ','ꦙ','ꦚ','ꦯ','ꦪ'].includes(char)) return 'talawya';
             if (['ꦛ','ꦜ','ꦝ','ꦞ','ꦟ','ꦰ','ꦫ'].includes(char)) return 'murdhanya';
@@ -463,7 +447,6 @@
                 let word = token.val;
                 let i = 0;
                 
-                // Track state khusus mid-word
                 let rSeenInWord = false;
                 let lastConsKey = null;
                 let lastConsIsMati = false;
@@ -487,7 +470,6 @@
                         continue;
                     }
 
-                    // Angka
                     if (c >= '0' && c <= '9') {
                         let numStr = '';
                         while (i < word.length && word[i] >= '0' && word[i] <= '9') {
@@ -499,7 +481,6 @@
                         continue;
                     }
 
-                    // Pa Cerek (re) Aksara Mandiri
                     if (word.substr(i, 2).toLowerCase() === 're') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsVowel = (i > 0 && matchVowel(word, i - 1));
@@ -511,7 +492,6 @@
                         }
                     }
 
-                    // Nga Lelet (le) Aksara Mandiri
                     if (word.substr(i, 2).toLowerCase() === 'le') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsVowel = (i > 0 && matchVowel(word, i - 1));
@@ -541,9 +521,6 @@
 
                         let consChar = cons.char;
 
-                        // -- HUKUM WARGA AKSARA (SANDHI) --
-                        
-                        // 1. Context Masa Lalu (Past)
                         if (cons.key === 'n') {
                             if (rSeenInWord) consChar = 'ꦟ';
                         } else if (cons.key === 's') {
@@ -551,7 +528,6 @@
                             if (lastConsKey === 'k' && lastConsIsMati) consChar = 'ꦰ';
                         }
 
-                        // 2. Context Masa Depan (Future) - Jika konsonan ini mati
                         if (isMati && nextConsTemp) {
                             let nextWarga = getWarga(nextConsTemp.char);
                             if (cons.key === 's') {
@@ -565,15 +541,12 @@
                             }
                         }
 
-                        // Set flag r jika ini konsonan R
                         if (cons.key === 'r') rSeenInWord = true;
 
-                        // -- CAKRA, PENGKAL, LA PEPET --
                         let handledWyanjana = false;
                         if (nextIdx < word.length) {
                             let nextConsTemp2 = matchConsonant(word, nextIdx);
 
-                            // Cakra / Cakra Keret
                             if (nextConsTemp2 && nextConsTemp2.key === 'r') {
                                 let afterRIdx = nextIdx + nextConsTemp2.len;
                                 let rVowel = matchVowel(word, afterRIdx);
@@ -591,7 +564,6 @@
                                     handledWyanjana = true;
                                 }
                             }
-                            // Pengkal
                             else if (nextConsTemp2 && nextConsTemp2.key === 'y') {
                                 let afterYIdx = nextIdx + nextConsTemp2.len;
                                 let yVowel = matchVowel(word, afterYIdx);
@@ -604,7 +576,6 @@
                                     handledWyanjana = true;
                                 }
                             }
-                            // Tidak ada pasangan La Pepet
                             else if (nextConsTemp2 && nextConsTemp2.key === 'l') {
                                 let afterLIdx = nextIdx + nextConsTemp2.len;
                                 let lVowel = matchVowel(word, afterLIdx);
@@ -654,7 +625,6 @@
 
                         isWordEnd = !nextV && (peekIdx >= word.length);
 
-                        // 1. NG MATI
                         if (cons.key === 'ng') {
                             if (!isWordEnd) {
                                 result += 'ꦔ꧀'; 
@@ -675,7 +645,6 @@
                             continue;
                         }
 
-                        // 2. HA MATI
                         if (cons.key === 'h') {
                             if (!isWordEnd) {
                                 result += 'ꦲ꧀';
@@ -696,7 +665,6 @@
                             continue;
                         }
 
-                        // 3. RA MATI (Dengan perbaikan pengecualian Dobel untuk ꦰ, ꦡ, dan wujud ꦟ)
                         if (cons.key === 'r') {
                             if (!isWordEnd) {
                                 result += 'ꦫ꧀';
@@ -707,17 +675,14 @@
                                     let consChar2_2 = nextConsTemp.char;
                                     let doubleIt = true;
                                     
-                                    // Pengecualian 1: n -> ꦟ꧀ꦤ
                                     if (nextConsTemp.key === 'n' || nextConsTemp.key === 'N' || consChar2_1 === 'ꦟ') {
                                         consChar2_1 = 'ꦟ';
                                         consChar2_2 = 'ꦤ'; 
                                     } 
-                                    // Pengecualian 2: s -> ꦰ (Tidak didobel)
                                     else if (nextConsTemp.key === 's' || nextConsTemp.key === 'sh' || consChar2_1 === 'ꦰ') {
                                         consChar2_1 = 'ꦰ';
                                         doubleIt = false;
                                     } 
-                                    // Pengecualian 3: ꦡ (Tidak didobel)
                                     else if (consChar2_1 === 'ꦡ') {
                                         doubleIt = false;
                                     }
@@ -767,7 +732,6 @@
                             continue;
                         }
 
-                        // 4. KONSONAN MATI LAINNYA
                         if (!isWordEnd) {
                             result += consChar + '꧀';
                             i += cons.len;
@@ -842,7 +806,6 @@
                         continue;
                     }
 
-                    // Vokal Berdiri Sendiri di Awal Kata
                     let vMatch = matchVowel(word, i);
                     if (vMatch) {
                         result += getMandarinVowel(vMatch.val);
