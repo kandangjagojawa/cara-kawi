@@ -201,7 +201,7 @@
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
-            <span>Validasi Struktural Sandhangan Wyanjana</span>
+            <span>Unicode: Pa Cerek (ꦉ) & Nga Lelet (ꦊ)</span>
         </div>
     </div>
 
@@ -282,7 +282,7 @@
             }
             return tokens;
         }
-           function transliterateKawi(rawText) {
+                function transliterateKawi(rawText) {
             if (!rawText) return '';
 
             let tokens = tokenize(rawText);
@@ -324,23 +324,23 @@
                         continue;
                     }
 
-                    // Pa Cerek (re pepet) di awal kata menjadi Pa Cerek (ꦽ/ꦯ), bukan Cakra Keret
+                    // Pa Cerek (re pepet) = ꦉ
                     if (word.substr(i, 2).toLowerCase() === 're') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
                         if (isStartOfWord || !prevCharIsCons) {
-                            result += 'ꦽ';
+                            result += 'ꦉ';
                             i += 2;
                             continue;
                         }
                     }
 
-                    // Nga Lelet (le pepet)
+                    // Nga Lelet (le pepet) = ꦊ
                     if (word.substr(i, 2).toLowerCase() === 'le') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
                         if (isStartOfWord || !prevCharIsCons) {
-                            result += 'ꦷ';
+                            result += 'ꦊ';
                             i += 2;
                             continue;
                         }
@@ -351,7 +351,7 @@
                     if (cons) {
                         let nextIdx = i + cons.len;
 
-                        // Cek Cakra / Cakra Keret / Pengkal (Memastikan ada konsonan utama sebelum sandhangan wyanjana)
+                        // Cek Cakra / Cakra Keret / Pengkal
                         if (nextIdx < word.length) {
                             let nextCons = matchConsonant(word, nextIdx);
 
@@ -481,8 +481,9 @@
                         } else {
                             let handledCrossWord = false;
 
+                            // Tidak ada pasangan la pepet -> Gunakan Pangkon + Nga Lelet (ꦊ)
                             if (nextWordToken && nextWordToken.val.substr(0, 2).toLowerCase() === 'le') {
-                                result += cons.char + '꧀' + 'ꦷ';
+                                result += cons.char + '꧀' + 'ꦊ';
                                 nextWordToken.val = nextWordToken.val.substr(2);
                                 handledCrossWord = true;
                             } else if (nextWordToken && nextWordToken.val.length > 1) {
