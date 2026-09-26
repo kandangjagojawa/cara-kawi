@@ -243,7 +243,6 @@
             return '';
         }
 
-        // Penanganan Vokal Mandiri di Awal Kata/Kalimat (Memastikan selalu ada Wyanjana)
         function getInitialVowelWyanjana(v) {
             if (v === 'a' || v === 'A') return 'ꦲ';
             if (v === 'i' || v === 'I') return 'ꦲꦶ';
@@ -283,8 +282,7 @@
             }
             return tokens;
         }
-
-        function transliterateKawi(rawText) {
+                function transliterateKawi(rawText) {
             if (!rawText) return '';
 
             let tokens = tokenize(rawText);
@@ -326,7 +324,6 @@
                         continue;
                     }
 
-                    // Pa Cerek (re pepet) di suku kata mandiri
                     if (word.substr(i, 2).toLowerCase() === 're') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
@@ -337,7 +334,6 @@
                         }
                     }
 
-                    // Nga Lelet (le pepet) di suku kata mandiri
                     if (word.substr(i, 2).toLowerCase() === 'le') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
@@ -353,7 +349,6 @@
                     if (cons) {
                         let nextIdx = i + cons.len;
 
-                        // Cek Cakra / Cakra Keret / Pengkal
                         if (nextIdx < word.length) {
                             let nextCons = matchConsonant(word, nextIdx);
 
@@ -387,8 +382,7 @@
 
                         if (hasNextCharInWord && isVowel(nextCharInWord)) {
                             result += cons.char + getSandhanganVowel(nextCharInWord);
-                            
-                            // Hukum Panglancar (Vokal Rangkap)
+
                             let afterVowelIdx = nextIdx + 1;
                             if (afterVowelIdx < word.length && isVowel(word[afterVowelIdx])) {
                                 let v1 = nextCharInWord;
@@ -411,7 +405,6 @@
 
                         let isWordEnd = !hasNextCharInWord;
 
-                        // 1. NG MATI
                         if (cons.key === 'ng') {
                             if (!isWordEnd) {
                                 result += 'ꦁ';
@@ -429,7 +422,6 @@
                             continue;
                         }
 
-                        // 2. HA MATI
                         if (cons.key === 'h') {
                             if (!isWordEnd) {
                                 result += 'ꦲ꧀';
@@ -447,7 +439,6 @@
                             continue;
                         }
 
-                        // 3. RA MATI
                         if (cons.key === 'r') {
                             if (!isWordEnd) {
                                 result += 'ꦫ꧀';
@@ -481,7 +472,6 @@
                             continue;
                         }
 
-                        // 4. KONSONAN MATI LAINNYA
                         if (!isWordEnd) {
                             result += cons.char + '꧀';
                             i += cons.len;
@@ -510,4 +500,94 @@
                                             handledCrossWord = true;
                                         } else if (nwCons.key === 'y') {
                                             result += cons.char + 'ꦾ' + getSandhanganVowel(v);
-     
+                                            nextWordToken.val = nextWordToken.val.substr(afterNwConsIdx + 1);
+                                            handledCrossWord = true;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (!handledCrossWord) {
+                                if (nextWordToken && isVowel(nextWordToken.val[0])) {
+                                    let v = nextWordToken.val[0];
+                                    result += cons.char + getSandhanganVowel(v);
+                                    nextWordToken.val = nextWordToken.val.substr(1);
+                                } else {
+                                    result += cons.char + '꧀';
+                                }
+                            }
+
+                            i += cons.len;
+                        }
+                        continue;
+                    }
+
+                    if (isVowel(c)) {
+                        result += getInitialVowelWyanjana(c);
+
+                        if (i + 1 < word.length && isVowel(word[i + 1])) {
+                            let v1 = c;
+                            let v2 = word[i + 1];
+
+                            if (['i', 'I', 'é', 'è', 'E'].includes(v1)) {
+                                result += 'ꦪ' + getSandhanganVowel(v2);
+                            } else if (['u', 'U', 'o', 'O'].includes(v1)) {
+                                result += 'ꦮ' + getSandhanganVowel(v2);
+                            } else {
+                                result += 'ꦲ' + getSandhanganVowel(v2);
+                            }
+                            i += 2;
+                            continue;
+                        }
+
+                        i++;
+                        continue;
+                    }
+
+                    result += c;
+                    i++;
+                }
+            }
+
+            return result;
+        }
+
+        function updatePreview() {
+            const latinText = textInput.value;
+            const jawaText = transliterateKawi(latinText);
+            previewOutput.textContent = jawaText;
+            charCount.textContent = `Jumlah Karakter: ${jawaText.length}`;
+        }
+
+        textInput.addEventListener('input', updatePreview);
+
+        fontSizeRange.addEventListener('input', (e) => {
+            const size = e.target.value;
+            fontSizeVal.textContent = size;
+            previewOutput.style.fontSize = size + 'px';
+        });
+
+        lineHeightRange.addEventListener('input', (e) => {
+            const height = e.target.value;
+            lineHeightVal.textContent = height;
+            previewOutput.style.lineHeight = height;
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const textToCopy = previewOutput.textContent;
+            if (!textToCopy) return;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('Aksara Jawa berhasil disalin ke papan klip.');
+            });
+        });
+
+        clearBtn.addEventListener('click', () => {
+            textInput.value = '';
+            updatePreview();
+            textInput.focus();
+        });
+
+        updatePreview();
+    </script>
+</body>
+</html>
