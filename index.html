@@ -185,7 +185,7 @@
             <label for="textInput">Teks Latin</label>
             <button id="clearBtn" class="btn btn-danger">Hapus Semua</button>
         </div>
-        <textarea id="textInput" placeholder="Ketik teks Latin di sini...">karna kra kre kriya</textarea>
+        <textarea id="textInput" placeholder="Ketik teks Latin di sini...">anak rasa anak reka anak yakin</textarea>
 
         <div class="label-header">
             <label>Cara Kawi</label>
@@ -197,7 +197,7 @@
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
-            <span>Aturan Kawi (Cakra, Cakra Keret, Pengkal & Ra Pangkon)</span>
+            <span>Aturan Kawi (Cakra & Pengkal Lintas Kata)</span>
         </div>
     </div>
 
@@ -235,8 +235,8 @@
             if (v === 'u' || v === 'U') return 'ꦸ';
             if (v === 'é' || v === 'è' || v === 'E') return 'ꦺ';
             if (v === 'o' || v === 'O') return 'ꦺꦴ';
-            if (v === 'e') return 'ꦼ'; // Pepet
-            return ''; // 'a' / 'A'
+            if (v === 'e') return 'ꦼ';
+            return '';
         }
 
         function getMandarinVowel(v) {
@@ -326,20 +326,17 @@
                     if (cons) {
                         let nextIdx = i + cons.len;
 
-                        // Cek Sandhangan Wyanjana: Cakra (r), Cakra Keret (re), dan Pengkal (y)
+                        // Cek Sandhangan Wyanjana DALAM KATA: Cakra (r), Cakra Keret (re), dan Pengkal (y)
                         if (nextIdx < word.length) {
                             let nextCons = matchConsonant(word, nextIdx);
 
-                            // 1. Cakra / Cakra Keret (Tiga gugus: Konsonan + 'r' + Vokal)
                             if (nextCons && nextCons.key === 'r') {
                                 let afterRIdx = nextIdx + nextCons.len;
                                 if (afterRIdx < word.length && isVowel(word[afterRIdx])) {
                                     let v = word[afterRIdx];
                                     if (v === 'e') {
-                                        // Cakra Keret (ꦽ) menggantikan r + pepet
                                         result += cons.char + 'ꦽ';
                                     } else {
-                                        // Cakra (ꦿ) + Sandhangan Vokal
                                         result += cons.char + 'ꦿ' + getSandhanganVowel(v);
                                     }
                                     i = afterRIdx + 1;
@@ -347,12 +344,10 @@
                                 }
                             }
 
-                            // 2. Pengkal (Tiga gugus: Konsonan + 'y' + Vokal)
                             if (nextCons && nextCons.key === 'y') {
                                 let afterYIdx = nextIdx + nextCons.len;
                                 if (afterYIdx < word.length && isVowel(word[afterYIdx])) {
                                     let v = word[afterYIdx];
-                                    // Pengkal (ꦾ) + Sandhangan Vokal
                                     result += cons.char + 'ꦾ' + getSandhanganVowel(v);
                                     i = afterYIdx + 1;
                                     continue;
@@ -409,10 +404,10 @@
                             continue;
                         }
 
-                        // 3. RA MATI (Di tengah kata: Ra pangkon + DOBEL KONSANAN saja)
+                        // 3. RA MATI
                         if (cons.key === 'r') {
                             if (!isWordEnd) {
-                                result += 'ꦫ꧀'; // Ra Pangkon
+                                result += 'ꦫ꧀';
                                 let nextCons = matchConsonant(word, nextIdx);
 
                                 if (nextCons) {
@@ -421,11 +416,9 @@
 
                                     if (hasVowel2) {
                                         let v2 = word[cons2Idx];
-                                        // Dobel konsonannya saja: [Konsonan Mati] + [Konsonan + Vokal]
                                         result += nextCons.char + '꧀' + nextCons.char + getSandhanganVowel(v2);
                                         i = cons2Idx + 1;
                                     } else {
-                                        // Jika konsonan setelah r mati juga konsonan mati
                                         result += nextCons.char + '꧀' + nextCons.char + '꧀';
                                         i = cons2Idx;
                                     }
@@ -450,13 +443,47 @@
                             result += cons.char + '꧀';
                             i += cons.len;
                         } else {
-                            if (nextWordToken && isVowel(nextWordToken.val[0])) {
-                                let v = nextWordToken.val[0];
-                                result += cons.char + getSandhanganVowel(v);
-                                nextWordToken.val = nextWordToken.val.substr(1);
-                            } else {
-                                result += cons.char + '꧀';
+                            // Cek Cakra / Pengkal Lintas Kata (Di awal kata berikutnya)
+                            let handledCrossWord = false;
+
+                            if (nextWordToken && nextWordToken.val.length > 1) {
+                                let nwCons = matchConsonant(nextWordToken.val, 0);
+
+                                if (nwCons) {
+                                    let afterNwConsIdx = nwCons.len;
+                                    if (afterNwConsIdx < nextWordToken.val.length && isVowel(nextWordToken.val[afterNwConsIdx])) {
+                                        let v = nextWordToken.val[afterNwConsIdx];
+
+                                        // Cakra / Cakra Keret lintas kata (Misal: "anak rasa", "anak reka")
+                                        if (nwCons.key === 'r') {
+                                            if (v === 'e') {
+                                                result += cons.char + 'ꦽ';
+                                            } else {
+                                                result += cons.char + 'ꦿ' + getSandhanganVowel(v);
+                                            }
+                                            nextWordToken.val = nextWordToken.val.substr(afterNwConsIdx + 1);
+                                            handledCrossWord = true;
+                                        }
+                                        // Pengkal lintas kata (Misal: "anak yakin")
+                                        else if (nwCons.key === 'y') {
+                                            result += cons.char + 'ꦾ' + getSandhanganVowel(v);
+                                            nextWordToken.val = nextWordToken.val.substr(afterNwConsIdx + 1);
+                                            handledCrossWord = true;
+                                        }
+                                    }
+                                }
                             }
+
+                            if (!handledCrossWord) {
+                                if (nextWordToken && isVowel(nextWordToken.val[0])) {
+                                    let v = nextWordToken.val[0];
+                                    result += cons.char + getSandhanganVowel(v);
+                                    nextWordToken.val = nextWordToken.val.substr(1);
+                                } else {
+                                    result += cons.char + '꧀';
+                                }
+                            }
+
                             i += cons.len;
                         }
                         continue;
