@@ -185,12 +185,11 @@
             <label for="textInput">Teks Latin</label>
             <button id="clearBtn" class="btn btn-danger">Hapus Semua</button>
         </div>
-        <!-- Menghilangkan otomatisasi kapital bawaan browser/keyboard -->
         <textarea id="textInput" 
                   autocapitalize="none" 
                   autocomplete="off" 
                   spellcheck="false" 
-                  placeholder="Ketik teks Latin di sini...">resik lemah anak lema suai ruana gawea</textarea>
+                  placeholder="Ketik teks Latin di sini...">anak rasa ingkang utami</textarea>
 
         <div class="label-header">
             <label>Cara Kawi</label>
@@ -202,7 +201,7 @@
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
-            <span>Pa Cerek, Nga Lelet & Hukum Panglancar</span>
+            <span>Validasi Struktural Wyanjana (Awal Kata & Kalimat)</span>
         </div>
     </div>
 
@@ -244,14 +243,15 @@
             return '';
         }
 
-        function getMandarinVowel(v) {
-            if (v === 'a' || v === 'A') return 'ꦄ';
-            if (v === 'i' || v === 'I') return 'ꦆ';
-            if (v === 'u' || v === 'U') return 'ꦈ';
-            if (v === 'é' || v === 'è' || v === 'E') return 'ꦌ';
-            if (v === 'o' || v === 'O') return 'ꦎ';
-            if (v === 'e') return 'ꦄꦼ';
-            return 'ꦄ';
+        // Penanganan Vokal Mandiri di Awal Kata/Kalimat (Memastikan selalu ada Wyanjana)
+        function getInitialVowelWyanjana(v) {
+            if (v === 'a' || v === 'A') return 'ꦲ';
+            if (v === 'i' || v === 'I') return 'ꦲꦶ';
+            if (v === 'u' || v === 'U') return 'ꦲꦸ';
+            if (v === 'é' || v === 'è' || v === 'E') return 'ꦲꦺ';
+            if (v === 'o' || v === 'O') return 'ꦲꦺꦴ';
+            if (v === 'e') return 'ꦲꦼ';
+            return 'ꦲ';
         }
 
         function matchConsonant(str, idx) {
@@ -326,23 +326,23 @@
                         continue;
                     }
 
-                    // Cek Pa Cerek (re pepet) di awal/tengah suku kata mandiri
+                    // Pa Cerek (re pepet) di suku kata mandiri
                     if (word.substr(i, 2).toLowerCase() === 're') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
                         if (isStartOfWord || !prevCharIsCons) {
-                            result += 'ꦽ'; // Pa Cerek
+                            result += 'ꦽ';
                             i += 2;
                             continue;
                         }
                     }
 
-                    // Cek Nga Lelet (le pepet) di awal/tengah suku kata mandiri
+                    // Nga Lelet (le pepet) di suku kata mandiri
                     if (word.substr(i, 2).toLowerCase() === 'le') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
                         if (isStartOfWord || !prevCharIsCons) {
-                            result += 'ꦷ'; // Nga Lelet
+                            result += 'ꦷ';
                             i += 2;
                             continue;
                         }
@@ -353,7 +353,7 @@
                     if (cons) {
                         let nextIdx = i + cons.len;
 
-                        // Cek Sandhangan Wyanjana DALAM KATA: Cakra, Cakra Keret, Pengkal
+                        // Cek Cakra / Cakra Keret / Pengkal
                         if (nextIdx < word.length) {
                             let nextCons = matchConsonant(word, nextIdx);
 
@@ -385,23 +385,21 @@
                         let hasNextCharInWord = nextIdx < word.length;
                         let nextCharInWord = hasNextCharInWord ? word[nextIdx] : null;
 
-                        // Case A: Konsonan tunggal + Vokal
                         if (hasNextCharInWord && isVowel(nextCharInWord)) {
                             result += cons.char + getSandhanganVowel(nextCharInWord);
                             
-                            // HUKUM PANGLANCAR: Pertemuan vokal di tengah kata (Vokal rangkap setelah konsonan)
+                            // Hukum Panglancar (Vokal Rangkap)
                             let afterVowelIdx = nextIdx + 1;
                             if (afterVowelIdx < word.length && isVowel(word[afterVowelIdx])) {
                                 let v1 = nextCharInWord;
                                 let v2 = word[afterVowelIdx];
 
-                                // Sisipkan aksara panglancar berdasarkan vokal pertama
                                 if (['i', 'I', 'é', 'è', 'E'].includes(v1)) {
-                                    result += 'ꦪ' + getSandhanganVowel(v2); // Panglancar Ya
+                                    result += 'ꦪ' + getSandhanganVowel(v2);
                                 } else if (['u', 'U', 'o', 'O'].includes(v1)) {
-                                    result += 'ꦮ' + getSandhanganVowel(v2); // Panglancar Wa
+                                    result += 'ꦮ' + getSandhanganVowel(v2);
                                 } else {
-                                    result += 'ꦲ' + getSandhanganVowel(v2); // Panglancar Ha
+                                    result += 'ꦲ' + getSandhanganVowel(v2);
                                 }
                                 i = afterVowelIdx + 1;
                                 continue;
@@ -411,7 +409,6 @@
                             continue;
                         }
 
-                        // Case B: Konsonan Mati
                         let isWordEnd = !hasNextCharInWord;
 
                         // 1. NG MATI
@@ -491,14 +488,11 @@
                         } else {
                             let handledCrossWord = false;
 
-                            // Tidak ada pasangan la pepet -> Jika kata berikutnya berawalan le (pepet), gunakan pangkon + Nga Lelet
                             if (nextWordToken && nextWordToken.val.substr(0, 2).toLowerCase() === 'le') {
                                 result += cons.char + '꧀' + 'ꦷ';
                                 nextWordToken.val = nextWordToken.val.substr(2);
                                 handledCrossWord = true;
-                            }
-                            // Cek Cakra / Pengkal Lintas Kata
-                            else if (nextWordToken && nextWordToken.val.length > 1) {
+                            } else if (nextWordToken && nextWordToken.val.length > 1) {
                                 let nwCons = matchConsonant(nextWordToken.val, 0);
 
                                 if (nwCons) {
@@ -516,97 +510,4 @@
                                             handledCrossWord = true;
                                         } else if (nwCons.key === 'y') {
                                             result += cons.char + 'ꦾ' + getSandhanganVowel(v);
-                                            nextWordToken.val = nextWordToken.val.substr(afterNwConsIdx + 1);
-                                            handledCrossWord = true;
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (!handledCrossWord) {
-                                if (nextWordToken && isVowel(nextWordToken.val[0])) {
-                                    let v = nextWordToken.val[0];
-                                    result += cons.char + getSandhanganVowel(v);
-                                    nextWordToken.val = nextWordToken.val.substr(1);
-                                } else {
-                                    result += cons.char + '꧀';
-                                }
-                            }
-
-                            i += cons.len;
-                        }
-                        continue;
-                    }
-
-                    // Vokal Berdiri Sendiri di Awal Kata
-                    if (isVowel(c)) {
-                        result += getMandarinVowel(c);
-
-                        // HUKUM PANGLANCAR: Jika diikuti vokal lain di awal kata
-                        if (i + 1 < word.length && isVowel(word[i + 1])) {
-                            let v1 = c;
-                            let v2 = word[i + 1];
-
-                            if (['i', 'I', 'é', 'è', 'E'].includes(v1)) {
-                                result += 'ꦪ' + getSandhanganVowel(v2);
-                            } else if (['u', 'U', 'o', 'O'].includes(v1)) {
-                                result += 'ꦮ' + getSandhanganVowel(v2);
-                            } else {
-                                result += 'ꦲ' + getSandhanganVowel(v2);
-                            }
-                            i += 2;
-                            continue;
-                        }
-
-                        i++;
-                        continue;
-                    }
-
-                    result += c;
-                    i++;
-                }
-            }
-
-            return result;
-        }
-
-        function updatePreview() {
-            const latinText = textInput.value;
-            const jawaText = transliterateKawi(latinText);
-            previewOutput.textContent = jawaText;
-            charCount.textContent = `Jumlah Karakter: ${jawaText.length}`;
-        }
-
-        // Event Listeners
-        textInput.addEventListener('input', updatePreview);
-
-        fontSizeRange.addEventListener('input', (e) => {
-            const size = e.target.value;
-            fontSizeVal.textContent = size;
-            previewOutput.style.fontSize = size + 'px';
-        });
-
-        lineHeightRange.addEventListener('input', (e) => {
-            const height = e.target.value;
-            lineHeightVal.textContent = height;
-            previewOutput.style.lineHeight = height;
-        });
-
-        copyBtn.addEventListener('click', () => {
-            const textToCopy = previewOutput.textContent;
-            if (!textToCopy) return;
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                alert('Aksara Jawa berhasil disalin ke papan klip.');
-            });
-        });
-
-        clearBtn.addEventListener('click', () => {
-            textInput.value = '';
-            updatePreview();
-            textInput.focus();
-        });
-
-        updatePreview();
-    </script>
-</body>
-</html>
+     
