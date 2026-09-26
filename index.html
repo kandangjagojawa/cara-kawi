@@ -185,7 +185,12 @@
             <label for="textInput">Teks Latin</label>
             <button id="clearBtn" class="btn btn-danger">Hapus Semua</button>
         </div>
-        <textarea id="textInput" placeholder="Ketik teks Latin di sini...">anak rasa anak reka anak yakin</textarea>
+        <!-- Menghilangkan otomatisasi kapital bawaan browser/keyboard -->
+        <textarea id="textInput" 
+                  autocapitalize="none" 
+                  autocomplete="off" 
+                  spellcheck="false" 
+                  placeholder="Ketik teks Latin di sini...">resik lemah anak lema suai ruana gawea</textarea>
 
         <div class="label-header">
             <label>Cara Kawi</label>
@@ -197,7 +202,7 @@
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
-            <span>Aturan Kawi (Cakra & Pengkal Lintas Kata)</span>
+            <span>Pa Cerek, Nga Lelet & Hukum Panglancar</span>
         </div>
     </div>
 
@@ -321,12 +326,34 @@
                         continue;
                     }
 
+                    // Cek Pa Cerek (re pepet) di awal/tengah suku kata mandiri
+                    if (word.substr(i, 2).toLowerCase() === 're') {
+                        let isStartOfWord = (i === 0);
+                        let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
+                        if (isStartOfWord || !prevCharIsCons) {
+                            result += 'ꦽ'; // Pa Cerek
+                            i += 2;
+                            continue;
+                        }
+                    }
+
+                    // Cek Nga Lelet (le pepet) di awal/tengah suku kata mandiri
+                    if (word.substr(i, 2).toLowerCase() === 'le') {
+                        let isStartOfWord = (i === 0);
+                        let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
+                        if (isStartOfWord || !prevCharIsCons) {
+                            result += 'ꦷ'; // Nga Lelet
+                            i += 2;
+                            continue;
+                        }
+                    }
+
                     let cons = matchConsonant(word, i);
 
                     if (cons) {
                         let nextIdx = i + cons.len;
 
-                        // Cek Sandhangan Wyanjana DALAM KATA: Cakra (r), Cakra Keret (re), dan Pengkal (y)
+                        // Cek Sandhangan Wyanjana DALAM KATA: Cakra, Cakra Keret, Pengkal
                         if (nextIdx < word.length) {
                             let nextCons = matchConsonant(word, nextIdx);
 
@@ -361,6 +388,25 @@
                         // Case A: Konsonan tunggal + Vokal
                         if (hasNextCharInWord && isVowel(nextCharInWord)) {
                             result += cons.char + getSandhanganVowel(nextCharInWord);
+                            
+                            // HUKUM PANGLANCAR: Pertemuan vokal di tengah kata (Vokal rangkap setelah konsonan)
+                            let afterVowelIdx = nextIdx + 1;
+                            if (afterVowelIdx < word.length && isVowel(word[afterVowelIdx])) {
+                                let v1 = nextCharInWord;
+                                let v2 = word[afterVowelIdx];
+
+                                // Sisipkan aksara panglancar berdasarkan vokal pertama
+                                if (['i', 'I', 'é', 'è', 'E'].includes(v1)) {
+                                    result += 'ꦪ' + getSandhanganVowel(v2); // Panglancar Ya
+                                } else if (['u', 'U', 'o', 'O'].includes(v1)) {
+                                    result += 'ꦮ' + getSandhanganVowel(v2); // Panglancar Wa
+                                } else {
+                                    result += 'ꦲ' + getSandhanganVowel(v2); // Panglancar Ha
+                                }
+                                i = afterVowelIdx + 1;
+                                continue;
+                            }
+
                             i = nextIdx + 1;
                             continue;
                         }
@@ -443,10 +489,16 @@
                             result += cons.char + '꧀';
                             i += cons.len;
                         } else {
-                            // Cek Cakra / Pengkal Lintas Kata (Di awal kata berikutnya)
                             let handledCrossWord = false;
 
-                            if (nextWordToken && nextWordToken.val.length > 1) {
+                            // Tidak ada pasangan la pepet -> Jika kata berikutnya berawalan le (pepet), gunakan pangkon + Nga Lelet
+                            if (nextWordToken && nextWordToken.val.substr(0, 2).toLowerCase() === 'le') {
+                                result += cons.char + '꧀' + 'ꦷ';
+                                nextWordToken.val = nextWordToken.val.substr(2);
+                                handledCrossWord = true;
+                            }
+                            // Cek Cakra / Pengkal Lintas Kata
+                            else if (nextWordToken && nextWordToken.val.length > 1) {
                                 let nwCons = matchConsonant(nextWordToken.val, 0);
 
                                 if (nwCons) {
@@ -454,7 +506,6 @@
                                     if (afterNwConsIdx < nextWordToken.val.length && isVowel(nextWordToken.val[afterNwConsIdx])) {
                                         let v = nextWordToken.val[afterNwConsIdx];
 
-                                        // Cakra / Cakra Keret lintas kata (Misal: "anak rasa", "anak reka")
                                         if (nwCons.key === 'r') {
                                             if (v === 'e') {
                                                 result += cons.char + 'ꦽ';
@@ -463,9 +514,7 @@
                                             }
                                             nextWordToken.val = nextWordToken.val.substr(afterNwConsIdx + 1);
                                             handledCrossWord = true;
-                                        }
-                                        // Pengkal lintas kata (Misal: "anak yakin")
-                                        else if (nwCons.key === 'y') {
+                                        } else if (nwCons.key === 'y') {
                                             result += cons.char + 'ꦾ' + getSandhanganVowel(v);
                                             nextWordToken.val = nextWordToken.val.substr(afterNwConsIdx + 1);
                                             handledCrossWord = true;
@@ -489,8 +538,26 @@
                         continue;
                     }
 
+                    // Vokal Berdiri Sendiri di Awal Kata
                     if (isVowel(c)) {
                         result += getMandarinVowel(c);
+
+                        // HUKUM PANGLANCAR: Jika diikuti vokal lain di awal kata
+                        if (i + 1 < word.length && isVowel(word[i + 1])) {
+                            let v1 = c;
+                            let v2 = word[i + 1];
+
+                            if (['i', 'I', 'é', 'è', 'E'].includes(v1)) {
+                                result += 'ꦪ' + getSandhanganVowel(v2);
+                            } else if (['u', 'U', 'o', 'O'].includes(v1)) {
+                                result += 'ꦮ' + getSandhanganVowel(v2);
+                            } else {
+                                result += 'ꦲ' + getSandhanganVowel(v2);
+                            }
+                            i += 2;
+                            continue;
+                        }
+
                         i++;
                         continue;
                     }
