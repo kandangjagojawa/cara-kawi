@@ -285,14 +285,12 @@
                 <div class="info-box">
                     <h4>Pada & Tanda Baca (Macro)</h4>
                     <ul>
-                        <li><span>Pada Luhur (꧞)</span> <code>@luhur</code></li>
-                        <li><span>Pada Madya (꧟)</span> <code>@madya</code></li>
-                        <li><span>Pada Andhap (ꧠ)</span> <code>@andhap</code></li>
-                        <li><span>Purwapada (꧅)</span> <code>@purwa</code></li>
-                        <li><span>Madyapada (꧆)</span> <code>@madyapada</code></li>
-                        <li><span>Wasanapada (꧄)</span> <code>@wasana</code></li>
-                        <li><span>Guru/Uger-uger (꧃)</span> <code>@guru</code></li>
-                        <li><span>Pada Pancak (꧉)</span> <code>@pancak</code></li>
+                        <li><span>Pada Luhur (꧅)</span> <code>@luhur</code></li>
+                        <li><span>Pada Madya (꧄)</span> <code>@madya</code></li>
+                        <li><span>Pada Andhap (꧃)</span> <code>@andhap</code></li>
+                        <li><span>Guru/Uger-uger (꧋꧞꧋)</span> <code>@guru</code></li>
+                        <li><span>Adeg-adeg (꧋)</span> <code>@adeg</code></li>
+                        <li><span>Pada Pancak (꧉꧞꧉)</span> <code>@pancak</code></li>
                         <li><span>Lingsa (꧈) / Lungsi (꧉)</span> <code>,</code> / <code>.</code></li>
                     </ul>
                 </div>
@@ -433,15 +431,13 @@
         }
 
         function processMacros(text) {
-            return text.replace(/@luhur/g, '꧞')
-                       .replace(/@madya/g, '꧟')
-                       .replace(/@andhap/g, 'ꧠ')
-                       .replace(/@purwa/g, '꧅')
-                       .replace(/@madyapada/g, '꧆')
-                       .replace(/@wasana/g, '꧄')
-                       .replace(/@guru/g, '꧃')
-                       .replace(/@uger/g, '꧃')
-                       .replace(/@pancak/g, '꧉');
+            return text.replace(/@luhur/g, '꧅')
+                       .replace(/@madya/g, '꧄')
+                       .replace(/@andhap/g, '꧃')
+                       .replace(/@guru/g, '꧋꧞꧋')
+                       .replace(/@uger/g, '꧋꧞꧋')
+                       .replace(/@adeg/g, '꧋')
+                       .replace(/@pancak/g, '꧉꧞꧉');
         }
 
         function transliterateKawi(rawText) {
@@ -708,7 +704,6 @@
                                 if (nextConsTemp) {
                                     let consChar2 = nextConsTemp.char;
                                     
-                                    // Pengecualian Warga untuk aksara yang didobel pasca-R
                                     if (nextConsTemp.key === 'n') consChar2 = 'ꦟ';
                                     if (nextConsTemp.key === 's') consChar2 = 'ꦰ';
                                     
