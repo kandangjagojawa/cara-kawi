@@ -189,7 +189,7 @@
                   autocapitalize="none" 
                   autocomplete="off" 
                   spellcheck="false" 
-                  placeholder="Ketik teks Latin di sini...">wangsa panga resik lemah anak lema suai ruana</textarea>
+                  placeholder="Ketik teks Latin di sini...">resik lemah anak lema suai ruana gawea</textarea>
 
         <div class="label-header">
             <label>Cara Kawi</label>
@@ -201,6 +201,7 @@
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
+            <!-- Keterangan teknis dihapus sesuai permintaan -->
         </div>
     </div>
 
@@ -324,23 +325,23 @@
                         continue;
                     }
 
-                    // Pa Cerek (re pepet)
+                    // Cek Pa Cerek (re pepet) di awal/tengah suku kata mandiri
                     if (word.substr(i, 2).toLowerCase() === 're') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
                         if (isStartOfWord || !prevCharIsCons) {
-                            result += 'ꦽ';
+                            result += 'ꦽ'; // Pa Cerek
                             i += 2;
                             continue;
                         }
                     }
 
-                    // Nga Lelet (le pepet)
+                    // Cek Nga Lelet (le pepet) di awal/tengah suku kata mandiri
                     if (word.substr(i, 2).toLowerCase() === 'le') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsCons = !isStartOfWord && matchConsonant(word, i - 1);
                         if (isStartOfWord || !prevCharIsCons) {
-                            result += 'ꦷ';
+                            result += 'ꦷ'; // Nga Lelet
                             i += 2;
                             continue;
                         }
@@ -351,7 +352,7 @@
                     if (cons) {
                         let nextIdx = i + cons.len;
 
-                        // Sandhangan Wyanjana DALAM KATA: Cakra, Cakra Keret, Pengkal
+                        // Cek Sandhangan Wyanjana DALAM KATA: Cakra, Cakra Keret, Pengkal
                         if (nextIdx < word.length) {
                             let nextCons = matchConsonant(word, nextIdx);
 
@@ -383,11 +384,11 @@
                         let hasNextCharInWord = nextIdx < word.length;
                         let nextCharInWord = hasNextCharInWord ? word[nextIdx] : null;
 
-                        // Konsonan tunggal + Vokal
+                        // Case A: Konsonan tunggal + Vokal
                         if (hasNextCharInWord && isVowel(nextCharInWord)) {
                             result += cons.char + getSandhanganVowel(nextCharInWord);
-
-                            // Hukum Panglancar (Vokal Rangkap)
+                            
+                            // HUKUM PANGLANCAR: Pertemuan vokal di tengah kata (Vokal rangkap setelah konsonan)
                             let afterVowelIdx = nextIdx + 1;
                             if (afterVowelIdx < word.length && isVowel(word[afterVowelIdx])) {
                                 let v1 = nextCharInWord;
@@ -408,13 +409,13 @@
                             continue;
                         }
 
-                        // Konsonan Mati
+                        // Case B: Konsonan Mati
                         let isWordEnd = !hasNextCharInWord;
 
-                        // 1. NG MATI (Di tengah kata -> Pasangan Nga ꧀ꦔ)
+                        // 1. NG MATI
                         if (cons.key === 'ng') {
                             if (!isWordEnd) {
-                                result += '꧀ꦔ';
+                                result += 'ꦁ';
                                 i += cons.len;
                             } else {
                                 if (nextWordToken && isVowel(nextWordToken.val[0])) {
@@ -488,11 +489,13 @@
                         } else {
                             let handledCrossWord = false;
 
+                            // Jika kata berikutnya berawalan le (pepet), gunakan pangkon + Nga Lelet
                             if (nextWordToken && nextWordToken.val.substr(0, 2).toLowerCase() === 'le') {
                                 result += cons.char + '꧀' + 'ꦷ';
                                 nextWordToken.val = nextWordToken.val.substr(2);
                                 handledCrossWord = true;
                             }
+                            // Cek Cakra / Pengkal Lintas Kata
                             else if (nextWordToken && nextWordToken.val.length > 1) {
                                 let nwCons = matchConsonant(nextWordToken.val, 0);
 
@@ -537,6 +540,7 @@
                     if (isVowel(c)) {
                         result += getMandarinVowel(c);
 
+                        // HUKUM PANGLANCAR: Jika diikuti vokal lain di awal kata
                         if (i + 1 < word.length && isVowel(word[i + 1])) {
                             let v1 = c;
                             let v2 = word[i + 1];
