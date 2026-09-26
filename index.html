@@ -185,7 +185,7 @@
             <label for="textInput">Teks Latin</label>
             <button id="clearBtn" class="btn btn-danger">Hapus Semua</button>
         </div>
-        <textarea id="textInput" placeholder="Ketik teks Latin di sini (misal: hanacaraka data sawala)...">hanacaraka data sawala padhajayanya magabathanga</textarea>
+        <textarea id="textInput" placeholder="Ketik teks Latin di sini...">mardi kawi</textarea>
 
         <div class="label-header">
             <label>Cara Kawi</label>
@@ -197,12 +197,11 @@
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
-            <span>Unicode Aksara Jawa</span>
+            <span>Aturan Ortografi Kawi (Scriptio Continua & Sastra Lampah)</span>
         </div>
     </div>
 
     <script>
-        // DOM Elements
         const textInput = document.getElementById('textInput');
         const previewOutput = document.getElementById('previewOutput');
         const fontSizeRange = document.getElementById('fontSizeRange');
@@ -213,127 +212,243 @@
         const copyBtn = document.getElementById('copyBtn');
         const clearBtn = document.getElementById('clearBtn');
 
-        // Engine Transliterasi Latin ke Aksara Jawa
-        function latinToJawa(str) {
-            if (!str) return '';
+        // Peta Konsonan Utam/Aksara
+        const CONS_MAP = {
+            'th': 'ꦛ', 'dh': 'ꦝ', 'ny': 'ꦚ', 'ng': 'ꦔ',
+            'TH': 'ꦜ', 'DH': 'ꦞ', 'NY': 'ꦚ', 'NG': 'ꦔ',
+            'kh': 'ꦑ', 'gh': 'ꦓ', 'ch': 'ꦖ', 'jh': 'ꦙ', 'ph': 'ꦠ', 'bh': 'ꦨ',
+            'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
+            'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
+            'p':'ꦥ', 'j':'ꦗ', 'y':'ꦪ', 'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ',
+            'H':'ꦲ', 'N':'ꦟ', 'C':'ꦖ', 'R':'ꦫ', 'K':'ꦑ',
+            'D':'ꦝ', 'T':'ꦛ', 'S':'ꦯ', 'W':'ꦮ', 'L':'ꦭ',
+            'P':'ꦰ', 'J':'ꦙ', 'Y':'ꦪ', 'M':'ꦩ', 'G':'ꦓ', 'B':'ꦨ'
+        };
 
-            let i = 0;
-            let res = '';
+        const VOWELS = ['a', 'i', 'u', 'e', 'é', 'è', 'o', 'A', 'I', 'U', 'E', 'O'];
 
-            const isVowel = (c) => 'aeiouéèêoåAEOUI'.includes(c);
+        function isVowel(c) {
+            return VOWELS.includes(c);
+        }
 
-            while (i < str.length) {
-                let c = str[i];
-                let c2 = str.substr(i, 2);
-                let c3 = str.substr(i, 3);
+        function getSandhanganVowel(v) {
+            if (v === 'i' || v === 'I') return 'ꦶ';
+            if (v === 'u' || v === 'U') return 'ꦸ';
+            if (v === 'é' || v === 'è' || v === 'E') return 'ꦺ';
+            if (v === 'o' || v === 'O') return 'ꦺꦴ';
+            if (v === 'e') return 'ꦼ'; // Pepet
+            return ''; // 'a' / 'A' tidak memakai sandhangan
+        }
 
-                // Angka
-                if (c >= '0' && c <= '9') {
-                    const numMap = {'0':'ꧏ','1':'꧑','2':'꧒','3':'꧓','4':'꧔','5':'꧕','6':'꧖','7':'꧗','8':'꧘','9':'꧙'};
-                    res += numMap[c];
-                    i++;
-                    continue;
-                }
+        function getMandarinVowel(v) {
+            if (v === 'a' || v === 'A') return 'ꦄ';
+            if (v === 'i' || v === 'I') return 'ꦆ';
+            if (v === 'u' || v === 'U') return 'ꦈ';
+            if (v === 'é' || v === 'è' || v === 'E') return 'ꦌ';
+            if (v === 'o' || v === 'O') return 'ꦎ';
+            if (v === 'e') return 'ꦄꦼ';
+            return 'ꦄ';
+        }
 
-                // Tanda Baca & Karakter Khusus
-                if (c === ' ') { res += ' '; i++; continue; }
-                if (c === '\n') { res += '\n'; i++; continue; }
-                if (c === '.') { res += '꧈ '; i++; continue; }
-                if (c === ',') { res += '꧈ '; i++; continue; }
+        function matchConsonant(str, idx) {
+            let sub2 = str.substr(idx, 2);
+            if (CONS_MAP[sub2]) return { char: CONS_MAP[sub2], len: 2, key: sub2.toLowerCase() };
+            let sub1 = str.substr(idx, 1);
+            if (CONS_MAP[sub1]) return { char: CONS_MAP[sub1], len: 1, key: sub1.toLowerCase() };
+            return null;
+        }
 
-                // Peta Konsonan Multi-Karakter
-                let consMap = {
-                    'th': 'ꦛ', 'dh': 'ꦝ', 'ny': 'ꦚ', 'ng': 'ꦔ',
-                    'TH': 'ꦜ', 'DH': 'ꦞ', 'NY': 'ꦚ', 'NG': 'ꦔ',
-                    'kh': 'ꦑ', 'gh': 'ꦓ', 'ch': 'ꦖ', 'jh': 'ꦙ',
-                    'ph': 'ꦠ', 'bh': 'ꦨ'
-                };
+        // Tokenizer untuk menguraikan kata & karakter non-kata
+        function tokenize(rawStr) {
+            let tokens = [];
+            let currentWord = '';
 
-                // Peta Konsonan Tunggal
-                let singleConsMap = {
-                    'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
-                    'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
-                    'p':'ꦥ', 'j':'ꦗ', 'y':'ꦪ', 'm':'ꦩ', 'g':'ꦒ', 'b':'ꦧ',
-                    'H':'ꦲ', 'N':'ꦟ', 'C':'ꦖ', 'R':'ꦫ', 'K':'ꦑ',
-                    'D':'ꦝ', 'T':'ꦛ', 'S':'ꦯ', 'W':'ꦮ', 'L':'ꦭ',
-                    'P':'ꦰ', 'J':'ꦙ', 'Y':'ꦪ', 'M':'ꦩ', 'G':'ꦓ', 'B':'ꦨ'
-                };
-
-                let cons = '';
-                let consLen = 0;
-
-                if (consMap[c2]) {
-                    cons = consMap[c2];
-                    consLen = 2;
-                } else if (singleConsMap[c]) {
-                    cons = singleConsMap[c];
-                    consLen = 1;
-                }
-
-                if (consLen > 0) {
-                    let nextIdx = i + consLen;
-                    let nextChar = str[nextIdx];
-
-                    // Jika diikuti vokal
-                    if (nextChar && isVowel(nextChar)) {
-                        res += cons;
-                        // Sandhangan Swara
-                        if (nextChar === 'i' || nextChar === 'I') res += 'ꦶ';
-                        else if (nextChar === 'u' || nextChar === 'U') res += 'ꦸ';
-                        else if (nextChar === 'e' || nextChar === 'é' || nextChar === 'E') res += 'ꦺ';
-                        else if (nextChar === 'o' || nextChar === 'O') res += 'ꦺꦴ';
-                        else if (nextChar === 'è' || nextChar === 'ê') res += 'ꦼ';
-                        // Vokal 'a' tidak butuh sandhangan tambahan
-                        i = nextIdx + 1;
-                    } 
-                    // Jika diikuti konsonan lain (Pasangan / Pangkon)
-                    else {
-                        // Cek Cecak (ng mati)
-                        if ((c2 === 'ng' || c2 === 'NG') && (!nextChar || !isVowel(nextChar))) {
-                            res += 'ꦁ';
-                            i += 2;
-                        } 
-                        // Cek Layar (r mati)
-                        else if ((c === 'r' || c === 'R') && (!nextChar || !isVowel(nextChar))) {
-                            res += 'ꦺꦂ';
-                            i += 1;
-                        } 
-                        // Cek Wignyan (h mati)
-                        else if ((c === 'h' || c === 'H') && (!nextChar || !isVowel(nextChar))) {
-                            res += 'ꦃ';
-                            i += 1;
-                        } 
-                        else {
-                            res += cons + '꧀';
-                            i += consLen;
-                        }
+            for (let i = 0; i < rawStr.length; i++) {
+                let c = rawStr[i];
+                if (/[a-zA-ZéèÉÈ0-9]/.test(c)) {
+                    currentWord += c;
+                } else {
+                    if (currentWord) {
+                        tokens.push({ type: 'word', val: currentWord });
+                        currentWord = '';
                     }
+                    tokens.push({ type: 'sep', val: c });
+                }
+            }
+            if (currentWord) {
+                tokens.push({ type: 'word', val: currentWord });
+            }
+            return tokens;
+        }
+
+        function transliterateKawi(rawText) {
+            if (!rawText) return '';
+
+            let tokens = tokenize(rawText);
+            let result = '';
+
+            for (let t = 0; t < tokens.length; t++) {
+                let token = tokens[t];
+
+                if (token.type === 'sep') {
+                    // Scriptio Continua: abaikan spasi antar kata
+                    if (token.val === ' ') continue;
+                    if (token.val === '\n') { result += '\n'; continue; }
+                    if (token.val === '.') { result += '꧈'; continue; }
+                    if (token.val === ',') { result += '꧈'; continue; }
+                    result += token.val;
                     continue;
                 }
 
-                // Vokal Mandiri (Awal Kata / Berdiri Sendiri)
-                if (isVowel(c)) {
-                    if (c === 'a' || c === 'A') res += 'ꦄ';
-                    else if (c === 'i' || c === 'I') res += 'ꦆ';
-                    else if (c === 'u' || c === 'U') res += 'ꦈ';
-                    else if (c === 'e' || c === 'E' || c === 'é') res += 'ꦌ';
-                    else if (c === 'o' || c === 'O') res += 'ꦎ';
-                    else res += 'ꦄ';
+                let word = token.val;
+                let i = 0;
+
+                // Cek token kata berikutnya (untuk sastra lampah antar kata)
+                let nextWordToken = null;
+                for (let nt = t + 1; nt < tokens.length; nt++) {
+                    if (tokens[nt].type === 'word') {
+                        nextWordToken = tokens[nt];
+                        break;
+                    }
+                    if (tokens[nt].type === 'sep' && (tokens[nt].val === '.' || tokens[nt].val === ',' || tokens[nt].val === '\n')) {
+                        break;
+                    }
+                }
+
+                while (i < word.length) {
+                    let c = word[i];
+
+                    // Handle Angka
+                    if (c >= '0' && c <= '9') {
+                        const numMap = {'0':'ꧏ','1':'꧑','2':'꧒','3':'꧓','4':'꧔','5':'꧕','6':'꧖','7':'꧗','8':'꧘','9':'꧙'};
+                        result += numMap[c];
+                        i++;
+                        continue;
+                    }
+
+                    let cons = matchConsonant(word, i);
+
+                    if (cons) {
+                        let nextIdx = i + cons.len;
+                        let hasNextCharInWord = nextIdx < word.length;
+                        let nextCharInWord = hasNextCharInWord ? word[nextIdx] : null;
+
+                        // Case A: Konsonan diikuti Vokal dalam kata
+                        if (hasNextCharInWord && isVowel(nextCharInWord)) {
+                            result += cons.char + getSandhanganVowel(nextCharInWord);
+                            i = nextIdx + 1;
+                            continue;
+                        }
+
+                        // Case B: Konsonan Mati (Mati di tengah kata ATAU di akhir kata)
+                        let isWordEnd = !hasNextCharInWord;
+
+                        // 1. NG MATI
+                        if (cons.key === 'ng') {
+                            if (!isWordEnd) {
+                                // Di tengah kata -> Pasangan Ng
+                                result += 'ꦁ'; // Atau konsonan ng + pangkon (pasangan)
+                                i += cons.len;
+                            } else {
+                                // Di akhir kata
+                                if (nextWordToken && isVowel(nextWordToken.val[0])) {
+                                    // Sastra Lampah dengan vokal kata berikutnya
+                                    let v = nextWordToken.val[0];
+                                    result += 'ꦔ' + getSandhanganVowel(v);
+                                    nextWordToken.val = nextWordToken.val.substr(1);
+                                } else {
+                                    // Cecek di akhir kata
+                                    result += 'ꦁ';
+                                }
+                                i += cons.len;
+                            }
+                            continue;
+                        }
+
+                        // 2. HA MATI
+                        if (cons.key === 'h') {
+                            if (!isWordEnd) {
+                                // Di tengah kata -> Pasangan Ha
+                                result += 'ꦲ꧀';
+                                i += cons.len;
+                            } else {
+                                // Di akhir kata
+                                if (nextWordToken && isVowel(nextWordToken.val[0])) {
+                                    // Sastra Lampah dengan vokal kata berikutnya
+                                    let v = nextWordToken.val[0];
+                                    result += 'ꦲ' + getSandhanganVowel(v);
+                                    nextWordToken.val = nextWordToken.val.substr(1);
+                                } else {
+                                    // Wignyan di akhir kata
+                                    result += 'ꦃ';
+                                }
+                                i += cons.len;
+                            }
+                            continue;
+                        }
+
+                        // 3. RA MATI
+                        if (cons.key === 'r') {
+                            if (!isWordEnd) {
+                                // Di tengah kata: Ra pangkon + konsonan berikutnya di-double
+                                result += 'ꦫ꧀';
+                                let nextCons = matchConsonant(word, nextIdx);
+                                if (nextCons) {
+                                    result += nextCons.char; // Double suku konsonan
+                                }
+                                i += cons.len;
+                            } else {
+                                // Di akhir kata
+                                if (nextWordToken && isVowel(nextWordToken.val[0])) {
+                                    // Sastra Lampah
+                                    let v = nextWordToken.val[0];
+                                    result += 'ꦫ' + getSandhanganVowel(v);
+                                    nextWordToken.val = nextWordToken.val.substr(1);
+                                } else {
+                                    // Akhir kata (diikuti konsonan/berhenti) -> Ra Dipangkon
+                                    result += 'ꦫ꧀';
+                                }
+                                i += cons.len;
+                            }
+                            continue;
+                        }
+
+                        // 4. KONSONAN MATI LAINNYA
+                        if (!isWordEnd) {
+                            result += cons.char + '꧀';
+                            i += cons.len;
+                        } else {
+                            if (nextWordToken && isVowel(nextWordToken.val[0])) {
+                                // Sastra Lampah
+                                let v = nextWordToken.val[0];
+                                result += cons.char + getSandhanganVowel(v);
+                                nextWordToken.val = nextWordToken.val.substr(1);
+                            } else {
+                                result += cons.char + '꧀';
+                            }
+                            i += cons.len;
+                        }
+                        continue;
+                    }
+
+                    // Vokal Berdiri Sendiri / Mandiri
+                    if (isVowel(c)) {
+                        result += getMandarinVowel(c);
+                        i++;
+                        continue;
+                    }
+
+                    result += c;
                     i++;
-                    continue;
                 }
-
-                // Karakter Lainnya
-                res += c;
-                i++;
             }
 
-            return res;
+            return result;
         }
 
         function updatePreview() {
             const latinText = textInput.value;
-            const jawaText = latinToJawa(latinText);
+            const jawaText = transliterateKawi(latinText);
             previewOutput.textContent = jawaText;
             charCount.textContent = `Jumlah Karakter: ${jawaText.length}`;
         }
