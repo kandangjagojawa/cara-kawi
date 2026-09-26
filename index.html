@@ -185,7 +185,7 @@
             <label for="textInput">Teks Latin</label>
             <button id="clearBtn" class="btn btn-danger">Hapus Semua</button>
         </div>
-        <textarea id="textInput" placeholder="Ketik teks Latin di sini...">mardi kawi</textarea>
+        <textarea id="textInput" placeholder="Ketik teks Latin di sini...">karna kra kre kriya</textarea>
 
         <div class="label-header">
             <label>Cara Kawi</label>
@@ -197,7 +197,7 @@
 
         <div class="meta-info">
             <span id="charCount">Jumlah Karakter: 0</span>
-            <span>Aturan Ortografi Kawi (Scriptio Continua & Sastra Lampah)</span>
+            <span>Aturan Kawi (Cakra, Cakra Keret, Pengkal & Ra Pangkon)</span>
         </div>
     </div>
 
@@ -212,7 +212,6 @@
         const copyBtn = document.getElementById('copyBtn');
         const clearBtn = document.getElementById('clearBtn');
 
-        // Peta Konsonan Utam/Aksara
         const CONS_MAP = {
             'th': 'ꦛ', 'dh': 'ꦝ', 'ny': 'ꦚ', 'ng': 'ꦔ',
             'TH': 'ꦜ', 'DH': 'ꦞ', 'NY': 'ꦚ', 'NG': 'ꦔ',
@@ -237,7 +236,7 @@
             if (v === 'é' || v === 'è' || v === 'E') return 'ꦺ';
             if (v === 'o' || v === 'O') return 'ꦺꦴ';
             if (v === 'e') return 'ꦼ'; // Pepet
-            return ''; // 'a' / 'A' tidak memakai sandhangan
+            return ''; // 'a' / 'A'
         }
 
         function getMandarinVowel(v) {
@@ -258,7 +257,6 @@
             return null;
         }
 
-        // Tokenizer untuk menguraikan kata & karakter non-kata
         function tokenize(rawStr) {
             let tokens = [];
             let currentWord = '';
@@ -291,8 +289,7 @@
                 let token = tokens[t];
 
                 if (token.type === 'sep') {
-                    // Scriptio Continua: abaikan spasi antar kata
-                    if (token.val === ' ') continue;
+                    if (token.val === ' ') continue; // Scriptio Continua
                     if (token.val === '\n') { result += '\n'; continue; }
                     if (token.val === '.') { result += '꧈'; continue; }
                     if (token.val === ',') { result += '꧈'; continue; }
@@ -303,7 +300,6 @@
                 let word = token.val;
                 let i = 0;
 
-                // Cek token kata berikutnya (untuk sastra lampah antar kata)
                 let nextWordToken = null;
                 for (let nt = t + 1; nt < tokens.length; nt++) {
                     if (tokens[nt].type === 'word') {
@@ -318,7 +314,6 @@
                 while (i < word.length) {
                     let c = word[i];
 
-                    // Handle Angka
                     if (c >= '0' && c <= '9') {
                         const numMap = {'0':'ꧏ','1':'꧑','2':'꧒','3':'꧓','4':'꧔','5':'꧕','6':'꧖','7':'꧗','8':'꧘','9':'꧙'};
                         result += numMap[c];
@@ -330,34 +325,65 @@
 
                     if (cons) {
                         let nextIdx = i + cons.len;
+
+                        // Cek Sandhangan Wyanjana: Cakra (r), Cakra Keret (re), dan Pengkal (y)
+                        if (nextIdx < word.length) {
+                            let nextCons = matchConsonant(word, nextIdx);
+
+                            // 1. Cakra / Cakra Keret (Tiga gugus: Konsonan + 'r' + Vokal)
+                            if (nextCons && nextCons.key === 'r') {
+                                let afterRIdx = nextIdx + nextCons.len;
+                                if (afterRIdx < word.length && isVowel(word[afterRIdx])) {
+                                    let v = word[afterRIdx];
+                                    if (v === 'e') {
+                                        // Cakra Keret (ꦽ) menggantikan r + pepet
+                                        result += cons.char + 'ꦽ';
+                                    } else {
+                                        // Cakra (ꦿ) + Sandhangan Vokal
+                                        result += cons.char + 'ꦿ' + getSandhanganVowel(v);
+                                    }
+                                    i = afterRIdx + 1;
+                                    continue;
+                                }
+                            }
+
+                            // 2. Pengkal (Tiga gugus: Konsonan + 'y' + Vokal)
+                            if (nextCons && nextCons.key === 'y') {
+                                let afterYIdx = nextIdx + nextCons.len;
+                                if (afterYIdx < word.length && isVowel(word[afterYIdx])) {
+                                    let v = word[afterYIdx];
+                                    // Pengkal (ꦾ) + Sandhangan Vokal
+                                    result += cons.char + 'ꦾ' + getSandhanganVowel(v);
+                                    i = afterYIdx + 1;
+                                    continue;
+                                }
+                            }
+                        }
+
                         let hasNextCharInWord = nextIdx < word.length;
                         let nextCharInWord = hasNextCharInWord ? word[nextIdx] : null;
 
-                        // Case A: Konsonan diikuti Vokal dalam kata
+                        // Case A: Konsonan tunggal + Vokal
                         if (hasNextCharInWord && isVowel(nextCharInWord)) {
                             result += cons.char + getSandhanganVowel(nextCharInWord);
                             i = nextIdx + 1;
                             continue;
                         }
 
-                        // Case B: Konsonan Mati (Mati di tengah kata ATAU di akhir kata)
+                        // Case B: Konsonan Mati
                         let isWordEnd = !hasNextCharInWord;
 
                         // 1. NG MATI
                         if (cons.key === 'ng') {
                             if (!isWordEnd) {
-                                // Di tengah kata -> Pasangan Ng
-                                result += 'ꦁ'; // Atau konsonan ng + pangkon (pasangan)
+                                result += 'ꦁ';
                                 i += cons.len;
                             } else {
-                                // Di akhir kata
                                 if (nextWordToken && isVowel(nextWordToken.val[0])) {
-                                    // Sastra Lampah dengan vokal kata berikutnya
                                     let v = nextWordToken.val[0];
                                     result += 'ꦔ' + getSandhanganVowel(v);
                                     nextWordToken.val = nextWordToken.val.substr(1);
                                 } else {
-                                    // Cecek di akhir kata
                                     result += 'ꦁ';
                                 }
                                 i += cons.len;
@@ -368,18 +394,14 @@
                         // 2. HA MATI
                         if (cons.key === 'h') {
                             if (!isWordEnd) {
-                                // Di tengah kata -> Pasangan Ha
                                 result += 'ꦲ꧀';
                                 i += cons.len;
                             } else {
-                                // Di akhir kata
                                 if (nextWordToken && isVowel(nextWordToken.val[0])) {
-                                    // Sastra Lampah dengan vokal kata berikutnya
                                     let v = nextWordToken.val[0];
                                     result += 'ꦲ' + getSandhanganVowel(v);
                                     nextWordToken.val = nextWordToken.val.substr(1);
                                 } else {
-                                    // Wignyan di akhir kata
                                     result += 'ꦃ';
                                 }
                                 i += cons.len;
@@ -387,25 +409,35 @@
                             continue;
                         }
 
-                        // 3. RA MATI
+                        // 3. RA MATI (Di tengah kata: Ra pangkon + DOBEL KONSANAN saja)
                         if (cons.key === 'r') {
                             if (!isWordEnd) {
-                                // Di tengah kata: Ra pangkon + konsonan berikutnya di-double
-                                result += 'ꦫ꧀';
+                                result += 'ꦫ꧀'; // Ra Pangkon
                                 let nextCons = matchConsonant(word, nextIdx);
+
                                 if (nextCons) {
-                                    result += nextCons.char; // Double suku konsonan
+                                    let cons2Idx = nextIdx + nextCons.len;
+                                    let hasVowel2 = cons2Idx < word.length && isVowel(word[cons2Idx]);
+
+                                    if (hasVowel2) {
+                                        let v2 = word[cons2Idx];
+                                        // Dobel konsonannya saja: [Konsonan Mati] + [Konsonan + Vokal]
+                                        result += nextCons.char + '꧀' + nextCons.char + getSandhanganVowel(v2);
+                                        i = cons2Idx + 1;
+                                    } else {
+                                        // Jika konsonan setelah r mati juga konsonan mati
+                                        result += nextCons.char + '꧀' + nextCons.char + '꧀';
+                                        i = cons2Idx;
+                                    }
+                                } else {
+                                    i += cons.len;
                                 }
-                                i += cons.len;
                             } else {
-                                // Di akhir kata
                                 if (nextWordToken && isVowel(nextWordToken.val[0])) {
-                                    // Sastra Lampah
                                     let v = nextWordToken.val[0];
                                     result += 'ꦫ' + getSandhanganVowel(v);
                                     nextWordToken.val = nextWordToken.val.substr(1);
                                 } else {
-                                    // Akhir kata (diikuti konsonan/berhenti) -> Ra Dipangkon
                                     result += 'ꦫ꧀';
                                 }
                                 i += cons.len;
@@ -419,7 +451,6 @@
                             i += cons.len;
                         } else {
                             if (nextWordToken && isVowel(nextWordToken.val[0])) {
-                                // Sastra Lampah
                                 let v = nextWordToken.val[0];
                                 result += cons.char + getSandhanganVowel(v);
                                 nextWordToken.val = nextWordToken.val.substr(1);
@@ -431,7 +462,6 @@
                         continue;
                     }
 
-                    // Vokal Berdiri Sendiri / Mandiri
                     if (isVowel(c)) {
                         result += getMandarinVowel(c);
                         i++;
@@ -482,7 +512,6 @@
             textInput.focus();
         });
 
-        // Inisialisasi awal
         updatePreview();
     </script>
 </body>
