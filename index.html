@@ -87,15 +87,6 @@
             color: #495057;
         }
 
-        select {
-            padding: 0.3rem 0.5rem;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 0.85rem;
-            outline: none;
-            cursor: pointer;
-        }
-
         input[type="range"] {
             cursor: pointer;
         }
@@ -174,13 +165,6 @@
 
         <div class="control-group">
             <div class="control-item">
-                <label for="vowelMode">Vokal Awal Kata:</label>
-                <select id="vowelMode">
-                    <option value="swara">Aksara Swara (ꦄ)</option>
-                    <option value="ha">Aksara Ha + Sandhangan (ꦲ)</option>
-                </select>
-            </div>
-            <div class="control-item">
                 <label for="fontSizeRange">Ukuran Font: <span id="fontSizeVal">32</span>px</label>
                 <input type="range" id="fontSizeRange" min="16" max="64" value="32">
             </div>
@@ -220,7 +204,6 @@
         const fontSizeVal = document.getElementById('fontSizeVal');
         const lineHeightRange = document.getElementById('lineHeightRange');
         const lineHeightVal = document.getElementById('lineHeightVal');
-        const vowelMode = document.getElementById('vowelMode');
         const charCount = document.getElementById('charCount');
         const copyBtn = document.getElementById('copyBtn');
         const clearBtn = document.getElementById('clearBtn');
@@ -253,24 +236,22 @@
         }
 
         function getMandarinVowel(v) {
-            const mode = vowelMode.value;
             const isCapital = (v === v.toUpperCase() && v !== v.toLowerCase());
 
-            // Trik: Jika diketik kapital, SELALU paksa menjadi Aksara Swara
-            if (mode === 'swara' || isCapital) {
-                if (v === 'a' || v === 'A') return 'ꦄ';
-                if (v === 'i' || v === 'I') return 'ꦆ';
-                if (v === 'u' || v === 'U') return 'ꦈ';
-                if (v === 'é' || v === 'è' || v === 'E') return 'ꦌ';
-                if (v === 'o' || v === 'O') return 'ꦎ';
-                if (v === 'e') return 'ꦄꦼ';
+            // Aturan Otomatis: Kapital = Aksara Swara, Kecil = Aksara Ha
+            if (isCapital) {
+                if (v === 'A') return 'ꦄ';
+                if (v === 'I') return 'ꦆ';
+                if (v === 'U') return 'ꦈ';
+                if (v === 'E' || v === 'É' || v === 'È') return 'ꦌ';
+                if (v === 'O') return 'ꦎ';
                 return 'ꦄ';
             } else {
-                if (v === 'a' || v === 'A') return 'ꦲ';
-                if (v === 'i' || v === 'I') return 'ꦲꦶ';
-                if (v === 'u' || v === 'U') return 'ꦲꦸ';
-                if (v === 'é' || v === 'è' || v === 'E') return 'ꦲꦺ';
-                if (v === 'o' || v === 'O') return 'ꦲꦺꦴ';
+                if (v === 'a') return 'ꦲ';
+                if (v === 'i') return 'ꦲꦶ';
+                if (v === 'u') return 'ꦲꦸ';
+                if (v === 'é' || v === 'è') return 'ꦲꦺ';
+                if (v === 'o') return 'ꦲꦺꦴ';
                 if (v === 'e') return 'ꦲꦼ';
                 return 'ꦲ';
             }
@@ -316,7 +297,7 @@
                 let token = tokens[t];
 
                 if (token.type === 'sep') {
-                    if (token.val === ' ') continue; 
+                    if (token.val === ' ') continue; // Scriptio Continua
                     if (token.val === '\n') { result += '\n'; continue; }
                     if (token.val === '.') { result += '꧈'; continue; }
                     if (token.val === ',') { result += '꧈'; continue; }
@@ -348,7 +329,7 @@
                         continue;
                     }
 
-                    // Cek Pa Cerek (re pepet)
+                    // Cek Pa Cerek (re pepet) - Aksara Mandiri
                     if (word.substr(i, 2).toLowerCase() === 're') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsVowel = (i > 0 && isVowel(word[i - 1]));
@@ -359,7 +340,7 @@
                         }
                     }
 
-                    // Cek Nga Lelet (le pepet)
+                    // Cek Nga Lelet (le pepet) - Aksara Mandiri
                     if (word.substr(i, 2).toLowerCase() === 'le') {
                         let isStartOfWord = (i === 0);
                         let prevCharIsVowel = (i > 0 && isVowel(word[i - 1]));
@@ -443,7 +424,7 @@
                         // 1. NG MATI
                         if (cons.key === 'ng') {
                             if (!isWordEnd) {
-                                result += 'ꦔ꧀'; // Tengahan selalu nga dipangkon (tidak ada cecek)
+                                result += 'ꦔ꧀'; 
                                 i += cons.len;
                             } else {
                                 if (nextWordToken && isVowel(nextWordToken.val[0])) {
@@ -451,7 +432,7 @@
                                     result += 'ꦔ' + getSandhanganVowel(v);
                                     nextWordToken.val = nextWordToken.val.substr(1);
                                 } else {
-                                    result += 'ꦁ'; // Akhiran menggunakan cecek jika tidak ada vokal penerus
+                                    result += 'ꦁ'; 
                                 }
                                 i += cons.len;
                             }
@@ -550,8 +531,18 @@
                             if (!handledCrossWord) {
                                 if (nextWordToken && isVowel(nextWordToken.val[0])) {
                                     let v = nextWordToken.val[0];
-                                    result += cons.char + getSandhanganVowel(v);
-                                    nextWordToken.val = nextWordToken.val.substr(1);
+                                    
+                                    // Pengecekan Khusus: Jika vokal berikutnya adalah KAPITAL, maka MATIKAN konsonan saat ini dengan pangkon
+                                    // dan biarkan vokal kapital tersebut dirender sebagai Aksara Swara utuh.
+                                    let isNextVowelCapital = (v === v.toUpperCase() && v !== v.toLowerCase());
+                                    
+                                    if (isNextVowelCapital) {
+                                        result += cons.char + '꧀'; // Pangkon untuk konsonan saat ini
+                                        // Vokal kapital akan dirender di putaran loop berikutnya sebagai Aksara Swara
+                                    } else {
+                                        result += cons.char + getSandhanganVowel(v); // Sastra lampah biasa
+                                        nextWordToken.val = nextWordToken.val.substr(1);
+                                    }
                                 } else {
                                     result += cons.char + '꧀';
                                 }
@@ -600,7 +591,6 @@
         }
 
         textInput.addEventListener('input', updatePreview);
-        vowelMode.addEventListener('change', updatePreview);
 
         fontSizeRange.addEventListener('input', (e) => {
             const size = e.target.value;
