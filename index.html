@@ -208,9 +208,11 @@
         const copyBtn = document.getElementById('copyBtn');
         const clearBtn = document.getElementById('clearBtn');
 
+        // Penambahan kombinasi tH, dH, Th, dan Dh untuk Ta Mahaprana & Da Mahaprana
         const CONS_MAP = {
             'th': 'ꦛ', 'dh': 'ꦝ', 'ny': 'ꦚ', 'ng': 'ꦔ',
             'TH': 'ꦜ', 'DH': 'ꦞ', 'NY': 'ꦚ', 'NG': 'ꦔ',
+            'tH': 'ꦡ', 'dH': 'ꦣ', 'Th': 'ꦡ', 'Dh': 'ꦣ', 
             'kh': 'ꦑ', 'gh': 'ꦓ', 'ch': 'ꦖ', 'jh': 'ꦙ', 'ph': 'ꦦ', 'bh': 'ꦨ',
             'h':'ꦲ', 'n':'ꦤ', 'c':'ꦕ', 'r':'ꦫ', 'k':'ꦏ',
             'd':'ꦢ', 't':'ꦠ', 's':'ꦱ', 'w':'ꦮ', 'l':'ꦭ',
@@ -532,15 +534,13 @@
                                 if (nextWordToken && isVowel(nextWordToken.val[0])) {
                                     let v = nextWordToken.val[0];
                                     
-                                    // Pengecekan Khusus: Jika vokal berikutnya adalah KAPITAL, maka MATIKAN konsonan saat ini dengan pangkon
-                                    // dan biarkan vokal kapital tersebut dirender sebagai Aksara Swara utuh.
+                                    // Pengecekan Khusus: Jika vokal berikutnya adalah KAPITAL, matikan konsonan saat ini dengan pangkon
                                     let isNextVowelCapital = (v === v.toUpperCase() && v !== v.toLowerCase());
                                     
                                     if (isNextVowelCapital) {
-                                        result += cons.char + '꧀'; // Pangkon untuk konsonan saat ini
-                                        // Vokal kapital akan dirender di putaran loop berikutnya sebagai Aksara Swara
+                                        result += cons.char + '꧀'; 
                                     } else {
-                                        result += cons.char + getSandhanganVowel(v); // Sastra lampah biasa
+                                        result += cons.char + getSandhanganVowel(v); 
                                         nextWordToken.val = nextWordToken.val.substr(1);
                                     }
                                 } else {
