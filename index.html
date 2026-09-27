@@ -12,6 +12,20 @@
             font-style: normal;
         }
 
+        @font-face {
+            font-family: 'Prayara';
+            src: url('prayara.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Gajah Mada';
+            src: url('gajahmada.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         :root {
             --bg-color: #f4f5f7;
             --card-bg: #ffffff;
@@ -88,6 +102,21 @@
 
         input[type="range"] {
             cursor: pointer;
+        }
+
+        select {
+            padding: 0.3rem 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            background: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: var(--accent);
         }
 
         textarea {
@@ -209,6 +238,14 @@
 
         <div class="control-group">
             <div class="control-item">
+                <label for="fontSelect">Jenis Font:</label>
+                <select id="fontSelect">
+                    <option value="Ngayogyan" selected>Ngayogyan</option>
+                    <option value="Prayara">Prayara</option>
+                    <option value="Gajah Mada">Gajah Mada</option>
+                </select>
+            </div>
+            <div class="control-item">
                 <label for="fontSizeRange">Ukuran Font: <span id="fontSizeVal">32</span>px</label>
                 <input type="range" id="fontSizeRange" min="16" max="64" value="32">
             </div>
@@ -298,6 +335,7 @@
     <script>
         const textInput = document.getElementById('textInput');
         const previewOutput = document.getElementById('previewOutput');
+        const fontSelect = document.getElementById('fontSelect');
         const fontSizeRange = document.getElementById('fontSizeRange');
         const fontSizeVal = document.getElementById('fontSizeVal');
         const lineHeightRange = document.getElementById('lineHeightRange');
@@ -849,6 +887,10 @@
             previewOutput.textContent = jawaText;
             charCount.textContent = `Jumlah Karakter: ${jawaText.length}`;
         }
+
+        fontSelect.addEventListener('change', (e) => {
+            previewOutput.style.fontFamily = `'${e.target.value}', sans-serif`;
+        });
 
         textInput.addEventListener('input', updatePreview);
 
