@@ -321,11 +321,13 @@
                 <div class="info-box">
                     <h4>Aturan Tambahan</h4>
                     <ul>
+                        <li><span>Cecak Telu (꦳)</span> <code>+</code> <i>(Cth: k+)</i></li>
+                        <li><span>Pindah Pasangan ke Bawah</span> <code>_</code> <i>(Cth: s_p)</i></li>
                         <li><span>Ta Mahaprana (ꦡ)</span> <code>tH</code> / <code>Th</code></li>
                         <li><span>Da Mahaprana (ꦣ)</span> <code>dH</code> / <code>Dh</code></li>
                         <li><span>Pa Cerek (ꦉ / ꦽ)</span> ketik <code>re</code></li>
                         <li><span>Nga Lelet (ꦊ / ꦷ)</span> ketik <code>le</code></li>
-                        <li><span>Pada Pangkat Angka (꧇)</span> <i>Otomatis. Cth: <code>123</code> (꧇꧑꧒꧓꧇)</i></li>
+                        <li><span>Pada Pangkat Angka (꧇)</span> <i>Otomatis. Cth: 123</i></li>
                     </ul>
                 </div>
             </div>
@@ -437,7 +439,7 @@
 
             for (let i = 0; i < rawStr.length; i++) {
                 let c = rawStr[i];
-                if (/[a-zA-ZéèÉÈ0-9\-]/.test(c)) {
+                if (/[a-zA-ZéèÉÈ0-9\-\+_]/.test(c)) {
                     currentWord += c;
                 } else {
                     if (currentWord) {
@@ -503,7 +505,22 @@
                 while (i < word.length) {
                     let c = word[i];
 
+                    // Abaikan pemisah
                     if (c === '-') {
+                        i++;
+                        continue;
+                    }
+
+                    // Tanda pemindah pasangan ke bawah ZWJ (\u200D)
+                    if (c === '_') {
+                        result += '\u200D';
+                        i++;
+                        continue;
+                    }
+
+                    // Tambahan cecak telu tunggal tanpa konsonan (fallback)
+                    if (c === '+') {
+                        result += '꦳';
                         i++;
                         continue;
                     }
@@ -544,9 +561,18 @@
                     let cons = matchConsonant(word, i);
 
                     if (cons) {
+                        let consChar = cons.char;
                         let nextIdx = i + cons.len;
+
+                        // Tangkap 'cecak telu' langsung setelah konsonan
+                        while (nextIdx < word.length && word[nextIdx] === '+') {
+                            consChar += '꦳';
+                            nextIdx++;
+                        }
+
                         let peekIdx = nextIdx;
-                        while(peekIdx < word.length && word[peekIdx] === '-') peekIdx++;
+                        // Skip modifier saat mencari vokal / konsonan selanjutnya
+                        while(peekIdx < word.length && (word[peekIdx] === '-' || word[peekIdx] === '_')) peekIdx++;
 
                         let hasVowelNext = matchVowel(word, peekIdx) !== null;
                         let isWordEnd = !hasVowelNext && peekIdx >= word.length;
@@ -556,8 +582,6 @@
                         if (isMati) {
                             nextConsTemp = matchConsonant(word, peekIdx);
                         }
-
-                        let consChar = cons.char;
 
                         if (cons.key === 'n') {
                             if (rSeenInWord) consChar = 'ꦟ';
@@ -665,18 +689,22 @@
 
                         if (cons.key === 'ng') {
                             if (!isWordEnd) {
-                                result += 'ꦔ꧀'; 
-                                i += cons.len;
+                                result += consChar + '꧀'; 
+                                i = nextIdx;
                             } else {
                                 let crossVowel = nextWordToken ? matchVowel(nextWordToken.val, 0) : null;
                                 if (crossVowel) {
                                     let v = crossVowel.val;
-                                    result += 'ꦔ' + getSandhanganVowel(v);
+                                    result += consChar + getSandhanganVowel(v);
                                     nextWordToken.val = nextWordToken.val.substr(crossVowel.len);
                                 } else {
-                                    result += 'ꦁ'; 
+                                    if (consChar.includes('꦳')) {
+                                        result += consChar + '꧀';
+                                    } else {
+                                        result += 'ꦁ'; 
+                                    }
                                 }
-                                i += cons.len;
+                                i = nextIdx;
                             }
                             lastConsKey = 'ng';
                             lastConsIsMati = true;
@@ -685,18 +713,22 @@
 
                         if (cons.key === 'h') {
                             if (!isWordEnd) {
-                                result += 'ꦲ꧀';
-                                i += cons.len;
+                                result += consChar + '꧀';
+                                i = nextIdx;
                             } else {
                                 let crossVowel = nextWordToken ? matchVowel(nextWordToken.val, 0) : null;
                                 if (crossVowel) {
                                     let v = crossVowel.val;
-                                    result += 'ꦲ' + getSandhanganVowel(v);
+                                    result += consChar + getSandhanganVowel(v);
                                     nextWordToken.val = nextWordToken.val.substr(crossVowel.len);
                                 } else {
-                                    result += 'ꦃ';
+                                    if (consChar.includes('꦳')) {
+                                        result += consChar + '꧀';
+                                    } else {
+                                        result += 'ꦃ';
+                                    }
                                 }
-                                i += cons.len;
+                                i = nextIdx;
                             }
                             lastConsKey = 'h';
                             lastConsIsMati = true;
@@ -705,28 +737,36 @@
 
                         if (cons.key === 'r') {
                             if (!isWordEnd) {
-                                result += 'ꦫ꧀';
+                                result += consChar + '꧀';
                                 let nextConsTemp = matchConsonant(word, peekIdx);
 
                                 if (nextConsTemp) {
                                     let consChar2_1 = nextConsTemp.char;
                                     let consChar2_2 = nextConsTemp.char;
+                                    
+                                    let doubleNextIdx = peekIdx + nextConsTemp.len;
+                                    while (doubleNextIdx < word.length && word[doubleNextIdx] === '+') {
+                                        consChar2_1 += '꦳';
+                                        consChar2_2 += '꦳';
+                                        doubleNextIdx++;
+                                    }
+
                                     let doubleIt = true;
                                     
-                                    if (nextConsTemp.key === 'n' || nextConsTemp.key === 'N' || consChar2_1 === 'ꦟ') {
-                                        consChar2_1 = 'ꦟ';
-                                        consChar2_2 = 'ꦤ'; 
+                                    if (nextConsTemp.key === 'n' || nextConsTemp.key === 'N' || consChar2_1.includes('ꦟ')) {
+                                        consChar2_1 = consChar2_1.replace('ꦤ', 'ꦟ');
+                                        consChar2_2 = consChar2_2.replace('ꦟ', 'ꦤ');
                                     } 
-                                    else if (nextConsTemp.key === 's' || nextConsTemp.key === 'sh' || consChar2_1 === 'ꦰ') {
-                                        consChar2_1 = 'ꦰ';
+                                    else if (nextConsTemp.key === 's' || nextConsTemp.key === 'sh' || consChar2_1.includes('ꦰ')) {
+                                        consChar2_1 = consChar2_1.replace('ꦱ', 'ꦰ');
                                         doubleIt = false;
                                     } 
-                                    else if (consChar2_1 === 'ꦡ') {
+                                    else if (consChar2_1.includes('ꦡ')) {
                                         doubleIt = false;
                                     }
                                     
-                                    let cons2Idx = peekIdx + nextConsTemp.len;
-                                    while(cons2Idx < word.length && word[cons2Idx] === '-') cons2Idx++;
+                                    let cons2Idx = doubleNextIdx;
+                                    while(cons2Idx < word.length && (word[cons2Idx] === '-' || word[cons2Idx] === '_')) cons2Idx++;
                                     let v2Match = matchVowel(word, cons2Idx);
 
                                     if (v2Match) {
@@ -744,12 +784,12 @@
                                         } else {
                                             result += consChar2_1 + '꧀';
                                         }
-                                        i = peekIdx + nextConsTemp.len;
+                                        i = doubleNextIdx;
                                         lastConsIsMati = true;
                                     }
                                     lastConsKey = nextConsTemp.key;
                                 } else {
-                                    i += cons.len;
+                                    i = nextIdx;
                                     lastConsKey = 'r';
                                     lastConsIsMati = true;
                                 }
@@ -764,7 +804,7 @@
                                     result += 'ꦫ꧀';
                                     lastConsIsMati = true;
                                 }
-                                i += cons.len;
+                                i = nextIdx;
                                 lastConsKey = 'r';
                             }
                             continue;
@@ -772,7 +812,7 @@
 
                         if (!isWordEnd) {
                             result += consChar + '꧀';
-                            i += cons.len;
+                            i = nextIdx;
                             lastConsKey = cons.key;
                             lastConsIsMati = true;
                         } else {
@@ -836,7 +876,7 @@
                                 }
                             }
 
-                            i += cons.len;
+                            i = nextIdx;
                             if (!handledCrossWord) {
                                 lastConsKey = cons.key;
                             }
