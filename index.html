@@ -326,8 +326,9 @@
                         <li><span>Pindah Pasangan ke Bawah</span> <code>_</code> <i>(Cth: s_p)</i></li>
                         <li><span>Ta Mahaprana (ꦡ)</span> <code>tH</code> / <code>Th</code></li>
                         <li><span>Da Mahaprana (ꦣ)</span> <code>dH</code> / <code>Dh</code></li>
-                        <li><span>Pa Cerek (ꦉ / ꦽ)</span> ketik <code>re</code></li>
-                        <li><span>Nga Lelet (ꦊ / ꦷ)</span> ketik <code>le</code></li>
+                        <li><span>Tha Mahaprana (ꦜ)</span> <code>TH</code></li>
+                        <li><span>Dha Mahaprana (ꦞ)</span> <code>DH</code></li>
+                        <li><span>Pada Pangkat Angka (꧇)</span> <i>Otomatis. Cth: 123</i></li>
                     </ul>
                 </div>
             </div>
@@ -370,7 +371,6 @@
 
         function matchVowel(str, idx) {
             let sub2 = str.substr(idx, 2);
-            // Menambahkan e' dan ex untuk E Taling
             if (['aa', 'ii', 'uu', 'ai', 'au', 'AA', 'II', 'UU', 'AI', 'AU', "e'", 'ex'].includes(sub2)) {
                 return { val: sub2, len: 2 };
             }
@@ -397,7 +397,6 @@
 
         function getMandarinVowel(v) {
             const isCapital = (v === v.toUpperCase() && v !== v.toLowerCase());
-            // e' dan ex diperlakukan lowercase taling
             if (v === "e'" || v === "ex") return 'ꦲꦺ';
 
             if (isCapital) {
@@ -442,7 +441,6 @@
 
             for (let i = 0; i < rawStr.length; i++) {
                 let c = rawStr[i];
-                // Menambahkan tanda petik (') agar e' terbaca dalam satu token
                 if (/[a-zA-ZéèÉÈ0-9\-\+_\']/.test(c)) {
                     currentWord += c;
                 } else {
