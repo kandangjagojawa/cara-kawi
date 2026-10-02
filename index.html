@@ -321,13 +321,13 @@
                 <div class="info-box">
                     <h4>Aturan Tambahan</h4>
                     <ul>
+                        <li><span>E Taling (é / è / ꦺ)</span> <code>E</code> / <code>ex</code> / <code>e'</code></li>
                         <li><span>Cecak Telu (꦳)</span> <code>+</code> <i>(Cth: k+)</i></li>
                         <li><span>Pindah Pasangan ke Bawah</span> <code>_</code> <i>(Cth: s_p)</i></li>
                         <li><span>Ta Mahaprana (ꦡ)</span> <code>tH</code> / <code>Th</code></li>
                         <li><span>Da Mahaprana (ꦣ)</span> <code>dH</code> / <code>Dh</code></li>
                         <li><span>Pa Cerek (ꦉ / ꦽ)</span> ketik <code>re</code></li>
                         <li><span>Nga Lelet (ꦊ / ꦷ)</span> ketik <code>le</code></li>
-                        <li><span>Pada Pangkat Angka (꧇)</span> <i>Otomatis. Cth: 123</i></li>
                     </ul>
                 </div>
             </div>
@@ -370,7 +370,8 @@
 
         function matchVowel(str, idx) {
             let sub2 = str.substr(idx, 2);
-            if (['aa', 'ii', 'uu', 'ai', 'au', 'AA', 'II', 'UU', 'AI', 'AU'].includes(sub2)) {
+            // Menambahkan e' dan ex untuk E Taling
+            if (['aa', 'ii', 'uu', 'ai', 'au', 'AA', 'II', 'UU', 'AI', 'AU', "e'", 'ex'].includes(sub2)) {
                 return { val: sub2, len: 2 };
             }
             let sub1 = str.substr(idx, 1);
@@ -383,7 +384,7 @@
         function getSandhanganVowel(v) {
             if (v === 'i' || v === 'I') return 'ꦶ';
             if (v === 'u' || v === 'U') return 'ꦸ';
-            if (v === 'é' || v === 'è' || v === 'E') return 'ꦺ';
+            if (v === 'é' || v === 'è' || v === 'E' || v === "e'" || v === 'ex') return 'ꦺ';
             if (v === 'o' || v === 'O') return 'ꦺꦴ';
             if (v === 'e') return 'ꦼ';
             if (v === 'aa') return 'ꦴ';
@@ -396,6 +397,8 @@
 
         function getMandarinVowel(v) {
             const isCapital = (v === v.toUpperCase() && v !== v.toLowerCase());
+            // e' dan ex diperlakukan lowercase taling
+            if (v === "e'" || v === "ex") return 'ꦲꦺ';
 
             if (isCapital) {
                 if (v === 'A') return 'ꦄ';
@@ -439,7 +442,8 @@
 
             for (let i = 0; i < rawStr.length; i++) {
                 let c = rawStr[i];
-                if (/[a-zA-ZéèÉÈ0-9\-\+_]/.test(c)) {
+                // Menambahkan tanda petik (') agar e' terbaca dalam satu token
+                if (/[a-zA-ZéèÉÈ0-9\-\+_\']/.test(c)) {
                     currentWord += c;
                 } else {
                     if (currentWord) {
@@ -505,20 +509,17 @@
                 while (i < word.length) {
                     let c = word[i];
 
-                    // Abaikan pemisah
                     if (c === '-') {
                         i++;
                         continue;
                     }
 
-                    // Tanda pemindah pasangan ke bawah ZWJ (\u200D)
                     if (c === '_') {
                         result += '\u200D';
                         i++;
                         continue;
                     }
 
-                    // Tambahan cecak telu tunggal tanpa konsonan (fallback)
                     if (c === '+') {
                         result += '꦳';
                         i++;
@@ -564,14 +565,12 @@
                         let consChar = cons.char;
                         let nextIdx = i + cons.len;
 
-                        // Tangkap 'cecak telu' langsung setelah konsonan
                         while (nextIdx < word.length && word[nextIdx] === '+') {
                             consChar += '꦳';
                             nextIdx++;
                         }
 
                         let peekIdx = nextIdx;
-                        // Skip modifier saat mencari vokal / konsonan selanjutnya
                         while(peekIdx < word.length && (word[peekIdx] === '-' || word[peekIdx] === '_')) peekIdx++;
 
                         let hasVowelNext = matchVowel(word, peekIdx) !== null;
@@ -658,7 +657,7 @@
                             result += consChar + getSandhanganVowel(nextV.val);
                             
                             let afterVowelIdx = peekIdx + nextV.len;
-                            while(afterVowelIdx < word.length && word[afterVowelIdx] === '-') {
+                            while(afterVowelIdx < word.length && (word[afterVowelIdx] === '-' || word[afterVowelIdx] === '_')) {
                                 afterVowelIdx++;
                             }
                             
@@ -667,7 +666,7 @@
                                 let v1 = nextV.val;
                                 let v2 = nextV2.val;
 
-                                if (['i', 'I', 'é', 'è', 'E', 'ii', 'II'].includes(v1)) {
+                                if (['i', 'I', 'é', 'è', 'E', 'ii', 'II', "e'", 'ex'].includes(v1)) {
                                     result += 'ꦪ' + getSandhanganVowel(v2);
                                 } else if (['u', 'U', 'o', 'O', 'uu', 'UU'].includes(v1)) {
                                     result += 'ꦮ' + getSandhanganVowel(v2);
@@ -860,7 +859,7 @@
                                 let crossVowel = nextWordToken ? matchVowel(nextWordToken.val, 0) : null;
                                 if (crossVowel) {
                                     let v = crossVowel.val;
-                                    let isNextVowelCapital = (v === v.toUpperCase() && v !== v.toLowerCase());
+                                    let isNextVowelCapital = (v === v.toUpperCase() && v !== v.toLowerCase() && v !== "e'" && v !== "ex");
                                     
                                     if (isNextVowelCapital) {
                                         result += consChar + '꧀'; 
@@ -889,7 +888,7 @@
                         result += getMandarinVowel(vMatch.val);
 
                         let afterVowelIdx = i + vMatch.len;
-                        while(afterVowelIdx < word.length && word[afterVowelIdx] === '-') {
+                        while(afterVowelIdx < word.length && (word[afterVowelIdx] === '-' || word[afterVowelIdx] === '_')) {
                             afterVowelIdx++;
                         }
                         
@@ -898,7 +897,7 @@
                             let v1 = vMatch.val;
                             let v2 = nextV2.val;
 
-                            if (['i', 'I', 'é', 'è', 'E', 'ii', 'II'].includes(v1)) {
+                            if (['i', 'I', 'é', 'è', 'E', 'ii', 'II', "e'", 'ex'].includes(v1)) {
                                 result += 'ꦪ' + getSandhanganVowel(v2);
                             } else if (['u', 'U', 'o', 'O', 'uu', 'UU'].includes(v1)) {
                                 result += 'ꦮ' + getSandhanganVowel(v2);
