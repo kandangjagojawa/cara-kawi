@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Tata Tulis Aksara Jawa</title>
+    <style>
+        @font-face {
+            font-family: 'Ngayogyan';
+            src: url('ngayogyan.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Prayara';
+            src: url('prayara.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Gajah Mada';
+            src: url('gajahmada.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        :root {
+            --bg-color: #f4f5f7;
+            --card-bg: #ffffff;
+            --primary: #2c3e50;
+            --accent: #2980b9;
+            --danger: #e74c3c;
+            --border: #dcdde1;
+            --text: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-top: 0.2rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #495057;
+        }
+
+        input[type="range"] {
+            cursor: pointer;
+        }
+
+        select {
+            padding: 0.3rem 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            background: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: var(--accent);
+        }
+
+        textarea {
+            width: 100%;
+            height: 140px;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1.1rem;
+            resize: vertical;
+            margin-bottom: 1.5rem;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .preview-container {
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1.5rem;
+            background: #fafafa;
+            min-height: 150px;
+            word-break: break-all;
+        }
+
+        .preview-output {
+            font-family: 'Ngayogyan', sans-serif;
+            font-size: 2rem;
+            line-height: 2;
+            white-space: pre-wrap;
+        }
+
+        .meta-info {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover { background-color: #1f618d; }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #c0392b; }
+
+        .info-panel {
+            margin-top: 2rem;
+            border-top: 2px solid var(--border);
+            padding-top: 1.5rem;
+        }
+
+        .info-panel h3 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .info-box h4 {
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .info-box ul {
+            list-style-type: none;
+        }
+
+        .info-box li {
+            margin-bottom: 0.4rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #dcdde1;
+            padding-bottom: 0.2rem;
+        }
+
+        .info-box code {
+            background: #e1e5ea;
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #d35400;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Aplikasi Tata Tulis Aksara Jawa</h1>
+        <div class="subtitle">CARA KAWI (DARI BUKU MARDIKAWI)</div>
+
+        <div class="control-group">
+            <div class="control-item">
+                <label for="fontSelect">Jenis Font:</label>
+                <select id="fontSelect">
+                    <option value="Ngayogyan" selected>Ngayogyan</option>
+                    <option value="Prayara">Prayara</option>
+                    <option value="Gajah Mada">Gajah Mada</option>
+                </select>
+            </div>
+            <div class="control-item">
+                <label for="fontSizeRange">Ukuran Font: <span id="fontSizeVal">32</span>px</label>
+                <input type="range" id="fontSizeRange" min="16" max="64" value="32">
+            </div>
+            <div class="control-item">
+                <label for="lineHeightRange">Spasi Baris: <span id="lineHeightVal">2.0</span></label>
+                <input type="range" id="lineHeightRange" min="1.0" max="3.0" step="0.1" value="2.0">
+            </div>
+        </div>
+
+        <div class="label-header">
+            <label for="textInput">Teks Latin</label>
+            <button id="clearBtn" class="btn btn-danger">Hapus Semua</button>
+        </div>
+        <textarea id="textInput" 
+                  autocapitalize="none" 
+                  autocomplete="off" 
+                  spellcheck="false" 
+                  placeholder=""></textarea>
+
+        <div class="label-header">
+            <label>Cara Kawi</label>
+            <button id="copyBtn" class="btn">Salin Aksara</button>
+        </div>
+        <div class="preview-container">
+            <div id="previewOutput" class="preview-output"></div>
+        </div>
+
+        <div class="meta-info">
+            <span id="charCount">Jumlah Karakter: 0</span>
+        </div>
+
+        <!-- Panel Informasi Teknis / Cheat Sheet -->
+        <div class="info-panel">
+            <h3>Panduan & Referensi Pengetikan (Cheat Sheet)</h3>
+            <div class="info-grid">
+
+                <div class="info-box">
+                    <h4>Vokal Panjang & Diftong</h4>
+                    <ul>
+                        <li><span>Sandhangan <b>a</b> panjang (ꦴ)</span> <code>aa</code></li>
+                        <li><span>Sandhangan <b>i</b> panjang (ꦷ)</span> <code>ii</code></li>
+                        <li><span>Sandhangan <b>u</b> panjang (ꦹ)</span> <code>uu</code></li>
+                        <li><span>Diftong <b>ai</b> (ꦻ)</span> <code>ai</code></li>
+                        <li><span>Diftong <b>au</b> (ꦻꦴ)</span> <code>au</code></li>
+                        <li><span style="font-size: 0.8rem; color: #555; margin-top:0.3rem;"><i>*Pemisah Panglancar: <code>a-i</code> (ꦲꦶ), <code>a-a</code> (ꦲꦴ)</i></span></li>
+                    </ul>
+                </div>
+                
+                <div class="info-box">
+                    <h4>Aksara Swara (Ketik Kapital)</h4>
+                    <ul>
+                        <li><span>Aksara <b>A</b> (ꦄ) / Panjang (ꦄꦴ)</span> <code>A</code> / <code>AA</code></li>
+                        <li><span>Aksara <b>I</b> (ꦅ) / Panjang (ꦆ)</span> <code>I</code> / <code>II</code></li>
+                        <li><span>Aksara <b>U</b> (ꦈ) / Panjang (ꦈꦴ)</span> <code>U</code> / <code>UU</code></li>
+                        <li><span>Aksara <b>E</b> (ꦌ) / <b>O</b> (ꦎ)</span> <code>E</code> / <code>O</code></li>
+                        <li><span>Diftong <b>AI</b> (ꦍ) / <b>AU</b> (ꦎꦴ)</span> <code>AI</code> / <code>AU</code></li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Pada & Tanda Baca (Macro)</h4>
+                    <ul>
+                        <li><span>Pada Luhur (꧅)</span> <code>@luhur</code></li>
+                        <li><span>Pada Madya (꧄)</span> <code>@madya</code></li>
+                        <li><span>Pada Andhap (꧃)</span> <code>@andhap</code></li>
+                        <li><span>Guru/Uger-uger (꧋꧞꧋)</span> <code>@guru</code></li>
+                        <li><span>Adeg-adeg (꧋)</span> <code>@adeg</code></li>
+                        <li><span>Pada Pancak (꧉꧞꧉)</span> <code>@pancak</code></li>
+                        <li><span>Lingsa (꧈) / Lungsi (꧉)</span> <code>,</code> / <code>.</code></li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Aturan Tambahan</h4>
+                    <ul>
+                        <li><span>E Taling (é / è / ꦺ)</span> <code>E</code> / <code>ex</code> / <code>e'</code></li>
+                        <li><span>Cecak Telu (꦳)</span> <code>+</code> <i>(Cth: k+)</i></li>
+                        <li><span>Pindah Pasangan ke Bawah</span> <code>_</code> <i>(Cth: s_p)</i></li>
+                        <li><span>Ta Mahaprana (ꦡ)</span> <code>tH</code> / <code>Th</code></li>
+                        <li><span>Da Mahaprana (ꦣ)</span> <code>dH</code> / <code>Dh</code></li>
+                        <li><span>Tha Mahaprana (ꦜ)</span> <code>TH</code></li>
+                        <li><span>Dha Mahaprana (ꦞ)</span> <code>DH</code></li>
+                        <li><span>Pada Pangkat Angka (꧇)</span> <i>Otomatis. Cth: 123</i></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="carakawi.js"></script>
+</body>
+</html>
